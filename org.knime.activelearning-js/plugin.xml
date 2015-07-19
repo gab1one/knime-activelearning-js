@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.knime.workbench.repository.nodesets">
+   	   <nodeset
+      		expert-flag="false"
+          	factory-class="org.knime.al.js.nodes.loop.JSLoopNodeSetFactory"
+          	id="org.knime.al.nodes.density.DensityNodeSetFactory">
+      </nodeset>
+   </extension>
+   <extension
+           point="org.knime.js.core.javascriptComponents">
+        <javascriptComponent
+              getComponentValue-method-name="getComponentValue"
+              implementationBundleID="org.knime.activelearning.js.loopend.bundle"
+              init-method-name="init"
+              javascriptComponentID="org_knime_al_nodes_loop_end2"
+              name="Active Learning JS Loop End View "
+              namespace="org.knime.al.js.noes.loop.end"
+              setValidationError-method-name="setValidationError"
+              validate-method-name="validate">
+        </javascriptComponent>
+     </extension>
+     <extension
+           id="org.knime.al.javascript.bundles"
+           name="Active Learn Javascript Bundles"
+           point="org.knime.js.core.webResources">
+           <webResourceBundle
+                 webResourceBundleID="org.knime.activelearning.js.loopend.bundle"
+                 name="Active Learn Loop End Javascript view"
+                 version="0.1"
+                 debug="true"
+                 description="Active Learn Loop End Javascript view">
+              <importResource
+                    relativePath="org/knime/al/nodes/loop/end2/loopendview.js"
+                    type="JAVASCRIPT">
+              </importResource>
+              <webResource
+                    relativePathSource="js-source/org/knime/al/js/nodes/loop/end/"
+                    relativePathTarget="org/knime/al/nodes/loop/end2/">
+              </webResource>
+              <webDependency
+                    webResourceBundleID="KnimeTableView_1.0.0">
+              </webDependency>
+           </webResourceBundle>
+     </extension>
+</plugin>
