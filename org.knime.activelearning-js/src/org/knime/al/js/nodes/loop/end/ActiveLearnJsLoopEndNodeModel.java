@@ -50,18 +50,17 @@
  */
 package org.knime.al.js.nodes.loop.end;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.knime.al.nodes.AbstractALNodeModel;
 import org.knime.al.nodes.loop.ActiveLearnLoopEnd;
-import org.knime.al.nodes.loop.ActiveLearnLoopStart;
 import org.knime.al.nodes.loop.ActiveLearnLoopUtils;
 import org.knime.al.util.NodeUtils;
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DataValue;
@@ -69,26 +68,26 @@ import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.container.ColumnRearranger;
-import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortType;
 import org.knime.core.node.web.ValidationError;
-import org.knime.core.node.wizard.WizardNode;
-import org.knime.core.node.wizard.WizardViewCreator;
-import org.knime.js.core.JavaScriptViewCreator;
+import org.knime.js.core.node.AbstractWizardNodeModel;
 
 /**
  *
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
-public class ActiveLearnJsLoopEndNodeModel extends AbstractALNodeModel
-        implements ActiveLearnLoopEnd,
-        WizardNode<ActiveLearnJsLoopEndViewRepresentation, ActiveLearnJsLoopViewValue> {
+public class ActiveLearnJsLoopEndNodeModel extends
+        AbstractWizardNodeModel<ActiveLearnJsLoopEndViewRepresentation, ActiveLearnJsLoopViewValue>
+        implements ActiveLearnLoopEnd {
 
     private final SettingsModelString m_classColModel = ActiveLearnJsLoopEndSettingsModels
             .createClassColumnModel();
@@ -97,7 +96,7 @@ public class ActiveLearnJsLoopEndNodeModel extends AbstractALNodeModel
     private final SettingsModelOptionalString m_defaultClassNameModel = ActiveLearnJsLoopEndSettingsModels
             .createDefaultClassModel();
 
-    private static final int LEARNING_DATA_PORT = 0;
+    private static final int LEARNING_DATA = 0;
     private static final int PASSTHROUGH_PORT = 1;
 
     private int m_classColIdx;
@@ -105,87 +104,109 @@ public class ActiveLearnJsLoopEndNodeModel extends AbstractALNodeModel
     private int m_previousIteration;
     private Map<RowKey, String> m_newLabeledRows;
 
-    private final Object m_lock = new Object();
     private ActiveLearnJsLoopEndViewRepresentation m_representation;
     private ActiveLearnJsLoopViewValue m_viewValue;
+    private List<SettingsModel> m_settingsModels;
 
     /**
     *
     */
     public ActiveLearnJsLoopEndNodeModel() {
-        super(2, 1);
-        m_representation = createEmptyViewRepresentation();
-        m_viewValue = createEmptyViewValue();
+
+        super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE },
+                new PortType[] { BufferedDataTable.TYPE });
 
         collectSettingsModels();
     }
 
     /**
-     * {@inheritDoc} Node routes through the second inport
+     * {@inheritDoc} Node routes through the second inport.
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
             throws InvalidSettingsException {
 
-        m_classColIdx = NodeUtils.autoColumnSelection(
-                inSpecs[LEARNING_DATA_PORT], m_classColModel, StringValue.class,
-                this.getClass());
+        m_classColIdx = NodeUtils.autoColumnSelection(inSpecs[LEARNING_DATA],
+                m_classColModel, StringValue.class, this.getClass());
 
-        m_repColIdx = NodeUtils.autoColumnSelection(inSpecs[LEARNING_DATA_PORT],
+        m_repColIdx = NodeUtils.autoColumnSelection(inSpecs[LEARNING_DATA],
                 m_repColModel, DataValue.class, this.getClass());
 
         return new DataTableSpec[] { inSpecs[PASSTHROUGH_PORT] };
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
+    protected PortObject[] performExecute(final PortObject[] inObjects,
             final ExecutionContext exec) throws Exception {
 
         final int currentIteration = getAvailableFlowVariables()
                 .get(ActiveLearnLoopUtils.AL_STEP).getIntValue();
-
         // user pressed the apply button
         if (currentIteration == m_previousIteration) {
-            synchronized (m_lock) {
+            synchronized (getLock()) {
 
                 // TODO: Get new data from view
             }
 
             super.continueLoop();
-            return null;
-        }
+        } else {
 
-        m_previousIteration = currentIteration;
+            final BufferedDataTable learningData = (BufferedDataTable) inObjects[LEARNING_DATA];
 
-        if (inData[LEARNING_DATA_PORT].getRowCount() > 0) {
-            synchronized (m_lock) {
+            m_repColIdx = learningData.getDataTableSpec()
+                    .findColumnIndex(m_repColModel.getStringValue());
 
+            // normal execution
+            m_previousIteration = currentIteration;
 
-                final Class<? extends DataColumnSpec> type = inData[LEARNING_DATA_PORT].getDataTableSpec().getColumnSpec(m_repColIdx).getClass();
-                        // Create the State storage
-//                final Map<String, RowObject<type>> keyToRowObject = new HashMap<>(
-//                        inData[LEARNING_DATA_PORT].getRowCount());
+            if (learningData.getRowCount() > 0) {
+                synchronized (getLock()) {
 
-//                for (final DataRow row : inData[LEARNING_DATA_PORT]) {
-//                    keyToRowObject.put(row.getKey(), row);
-//                }
+                    final Map<String, String> rowLabels = new HashMap<>(
+                            learningData.getRowCount());
 
-                final Set<String> classes = ((ActiveLearnLoopStart) getLoopStartNode())
-                        .getDefinedClasses();
+                    final Map<String, String> rowRepresentation = new HashMap<>(
+                            learningData.getRowCount());
 
-                // TODO CREATE View Value! View stuff!
+                    // get data
+                    for (final DataRow row : learningData) {
+                        // initialize with empty class labels
+                        final String rowKey = row.getKey().getString();
+                        rowLabels.put(rowKey, "");
 
+                        // convert image to
+                        final String rowRep = convertRepresentation(
+                                row.getCell(m_repColIdx));
+
+                    }
+
+                    // TODO CREATE View Value! View stuff!
+
+                    // final Set<String> classLabels = ((ActiveLearnLoopStart)
+                    // getLoopStartNode())
+                    // .getDefinedClassLabels();
+                    // m_viewValue = new ActiveLearnJsLoopViewValue(classLabels,
+                    // rowLabels);
+
+                }
             }
         }
 
         // return an empty table when the optional input is not connected
-        if (inData[PASSTHROUGH_PORT] == null) {
-            final BufferedDataContainer paddContainer = exec
-                    .createDataContainer(new DataTableSpec());
-            paddContainer.close();
-            return new BufferedDataTable[] { paddContainer.getTable() };
-        }
-        return new BufferedDataTable[] { inData[PASSTHROUGH_PORT] };
+        return new BufferedDataTable[] {
+                (BufferedDataTable) inObjects[PASSTHROUGH_PORT] };
+    }
+
+    /**
+     * @param cell
+     * @return
+     */
+    private String convertRepresentation(final DataCell cell) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     /**
@@ -210,12 +231,13 @@ public class ActiveLearnJsLoopEndNodeModel extends AbstractALNodeModel
     }
 
     /**
-     * Initializes the settingsmodel storage.
+     * Initializes the settings model storage.
+     *
+     * @return a list of all settings models used in the node
      */
-    @Override
     protected List<SettingsModel> collectSettingsModels() {
         if (m_settingsModels == null) {
-            m_settingsModels = new ArrayList<SettingsModel>(4);
+            m_settingsModels = new ArrayList<SettingsModel>(3);
             m_settingsModels.add(m_classColModel);
             m_settingsModels.add(m_defaultClassNameModel);
             m_settingsModels.add(m_repColModel);
@@ -227,34 +249,9 @@ public class ActiveLearnJsLoopEndNodeModel extends AbstractALNodeModel
      * {@inheritDoc}
      */
     @Override
-    protected void reset() {
-        m_newLabeledRows = null;
-        m_previousIteration = -1; // To ensure node gets executed again
-        synchronized (m_lock) {
-            m_representation = createEmptyViewRepresentation();
-            m_viewValue = createEmptyViewValue();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ValidationError validateViewValue(
-            final ActiveLearnJsLoopViewValue viewContent) {
-        synchronized (m_lock) {
-            // TODO validate value
-        }
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void loadViewValue(final ActiveLearnJsLoopViewValue viewContent,
             final boolean useAsDefault) {
-        synchronized (m_lock) {
+        synchronized (getLock()) {
             m_viewValue = viewContent;
         }
     }
@@ -273,7 +270,7 @@ public class ActiveLearnJsLoopEndNodeModel extends AbstractALNodeModel
      */
     @Override
     public ActiveLearnJsLoopEndViewRepresentation getViewRepresentation() {
-        synchronized (m_lock) {
+        synchronized (getLock()) {
             return m_representation;
         }
     }
@@ -283,7 +280,7 @@ public class ActiveLearnJsLoopEndNodeModel extends AbstractALNodeModel
      */
     @Override
     public ActiveLearnJsLoopViewValue getViewValue() {
-        synchronized (m_lock) {
+        synchronized (getLock()) {
             return m_viewValue;
         }
     }
@@ -300,14 +297,6 @@ public class ActiveLearnJsLoopEndNodeModel extends AbstractALNodeModel
      * {@inheritDoc}
      */
     @Override
-    public ActiveLearnJsLoopViewValue createEmptyViewValue() {
-        return new ActiveLearnJsLoopViewValue();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getJavascriptObjectID() {
         return "org_knime_al_nodes_loop_end2";
     }
@@ -316,14 +305,20 @@ public class ActiveLearnJsLoopEndNodeModel extends AbstractALNodeModel
      * {@inheritDoc}
      */
     @Override
-    public String getViewHTMLPath() {
-        final JavaScriptViewCreator<ActiveLearnJsLoopEndViewRepresentation, ActiveLearnJsLoopViewValue> viewCreator = new JavaScriptViewCreator<>(
-                getJavascriptObjectID());
-        try {
-            return viewCreator.createWebResources("View",
-                    getViewRepresentation(), getViewValue());
-        } catch (final IOException e) {
-            return null;
+    public boolean isHideInWizard() {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void performReset() {
+        synchronized (getLock()) {
+            m_newLabeledRows = null;
+            m_previousIteration = -1; // To ensure node gets executed again
+            m_representation = createEmptyViewRepresentation();
+            m_viewValue = createEmptyViewValue();
         }
     }
 
@@ -331,15 +326,65 @@ public class ActiveLearnJsLoopEndNodeModel extends AbstractALNodeModel
      * {@inheritDoc}
      */
     @Override
-    public WizardViewCreator<ActiveLearnJsLoopEndViewRepresentation, ActiveLearnJsLoopViewValue> getViewCreator() {
-        return new JavaScriptViewCreator<>(getJavascriptObjectID());
+    protected String getInteractiveViewName() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isHideInWizard() {
-        return false;
+    protected void useCurrentValueAsDefault() {
+        // TODO Auto-generated method stub
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void saveSettingsTo(final NodeSettingsWO settings) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void validateSettings(final NodeSettingsRO settings)
+            throws InvalidSettingsException {
+        // TODO Auto-generated method stub
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
+            throws InvalidSettingsException {
+        // TODO Auto-generated method stub
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ActiveLearnJsLoopViewValue createEmptyViewValue() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ValidationError validateViewValue(
+            final ActiveLearnJsLoopViewValue viewContent) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

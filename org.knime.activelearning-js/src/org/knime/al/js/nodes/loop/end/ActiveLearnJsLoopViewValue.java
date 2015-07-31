@@ -50,6 +50,10 @@
  */
 package org.knime.al.js.nodes.loop.end;
 
+import java.util.Map;
+import java.util.Set;
+
+import org.knime.al.js.util.JSViewUtils;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -67,13 +71,39 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class ActiveLearnJsLoopViewValue extends JSONViewContent {
 
+    private static final String ROW_LABELS = "row_labelings_key";
+    private static final String CLASS_LABELS = "class_labels_key";
+    private Set<String> m_classLabels;
+    private Map<String, String> m_rowLabels;
+
+    /**
+     * Serialization constructor, do not use!
+     */
+    public ActiveLearnJsLoopViewValue() {
+    }
+
+    /**
+     * Creates the ViewValue for the JsLoop end view.
+     *
+     * @param classLabels
+     *            the already known classlabels.
+     * @param rowLabels the labels of the rows
+     */
+    public ActiveLearnJsLoopViewValue(final Set<String> classLabels,
+            final Map<String, String> rowLabels) {
+        super();
+        m_classLabels = classLabels;
+        m_rowLabels = rowLabels;
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void saveToNodeSettings(final NodeSettingsWO settings) {
-        // TODO Auto-generated method stub
-
+        JSViewUtils.saveMap(settings.addNodeSettings(ROW_LABELS), m_rowLabels);
+        JSViewUtils.saveSet(settings.addNodeSettings(CLASS_LABELS),
+                m_classLabels);
     }
 
     /**
@@ -82,8 +112,39 @@ public class ActiveLearnJsLoopViewValue extends JSONViewContent {
     @Override
     public void loadFromNodeSettings(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-        // TODO Auto-generated method stub
+        m_rowLabels = JSViewUtils.loadMap(settings.getNodeSettings(ROW_LABELS));
+        m_classLabels = JSViewUtils
+                .loadSet(settings.getNodeSettings(CLASS_LABELS));
+    }
 
+    /**
+     * @return the class labels
+     */
+    public Set<String> getClassLabels() {
+        return m_classLabels;
+    }
+
+    /**
+     * @param classLabels
+     *            the class labels to set
+     */
+    public void setClassLabels(final Set<String> classLabels) {
+        m_classLabels = classLabels;
+    }
+
+    /**
+     * @return the rowLabels
+     */
+    public Map<String, String> getRowLabels() {
+        return m_rowLabels;
+    }
+
+    /**
+     * @param rowLabels
+     *            the rowLabels to set
+     */
+    public void setRowLabels(final Map<String, String> rowLabels) {
+        m_rowLabels = rowLabels;
     }
 
 }

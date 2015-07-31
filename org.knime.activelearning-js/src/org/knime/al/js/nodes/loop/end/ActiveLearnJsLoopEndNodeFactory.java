@@ -64,8 +64,9 @@ import org.knime.core.node.wizard.WizardNodeFactoryExtension;
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
 public class ActiveLearnJsLoopEndNodeFactory
-        extends NodeFactory<ActiveLearnJsLoopEndNodeModel>implements
-        WizardNodeFactoryExtension<ActiveLearnJsLoopEndNodeModel, ActiveLearnJsLoopEndViewRepresentation, ActiveLearnJsLoopViewValue> {
+        extends NodeFactory<ActiveLearnJsLoopEndNodeModel> implements
+        WizardNodeFactoryExtension<ActiveLearnJsLoopEndNodeModel,
+        ActiveLearnJsLoopEndViewRepresentation, ActiveLearnJsLoopViewValue> {
 
     /**
      * {@inheritDoc}
@@ -88,7 +89,8 @@ public class ActiveLearnJsLoopEndNodeFactory
      */
     @Override
     public NodeView<ActiveLearnJsLoopEndNodeModel> createNodeView(
-            final int viewIndex, final ActiveLearnJsLoopEndNodeModel nodeModel) {
+            final int viewIndex,
+            final ActiveLearnJsLoopEndNodeModel nodeModel) {
         return null;
     }
 

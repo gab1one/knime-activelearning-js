@@ -77,6 +77,22 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
     private static final String ROW_REP = "rowRepresentation";
 
     /**
+     * Serialization constructor do not use!
+     */
+    public ActiveLearnJsLoopEndViewRepresentation() {
+    }
+
+    /**
+     * @param rowRepresentations
+     *            the representations for the rows.
+     */
+    public ActiveLearnJsLoopEndViewRepresentation(
+            final Map<String, String> rowRepresentations) {
+        super();
+        m_rowRepresentations = rowRepresentations;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
