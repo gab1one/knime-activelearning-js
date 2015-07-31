@@ -52,7 +52,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.knime.al.js.nodes.loop.JSLoopNodeSetFactory;
 import org.knime.al.js.nodes.loop.end.ActiveLearnJsLoopEndNodeFactory;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeLogger;
@@ -65,9 +64,6 @@ import org.knime.core.node.config.ConfigRO;
  */
 public class JSLoopNodeSetFactory implements NodeSetFactory {
 
-    /**
-     *
-     */
     private static final String CATEGORY_PREFIX = "/activelearning/loop";
     private static final NodeLogger LOGGER = NodeLogger
             .getLogger(JSLoopNodeSetFactory.class);
@@ -118,7 +114,7 @@ public class JSLoopNodeSetFactory implements NodeSetFactory {
      */
     @Override
     public Collection<String> getNodeFactoryIds() {
-        // The ALE2 Node is Work in Progress
+
         m_nodeFactories.put(
                 ActiveLearnJsLoopEndNodeFactory.class.getCanonicalName(),
                 CATEGORY_PREFIX);

@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: KNIME Active Learning Plug-in
-Bundle-SymbolicName: org.knime.exp.activelearning-js;singleton:=true
+Bundle-Name: KNIME Active Learning Plug-in Js Loop end
+Bundle-SymbolicName: org.knime.exp.activelearningjs;singleton:=true
 Bundle-Version: 0.0.0.qualifier
-Bundle-ClassPath: knime_activelearning.jar
+Bundle-ClassPath: knime_activelearning-js.jar
 Bundle-Vendor: Chair for Bioinformatics and Information Mining,
  University of Konstanz,
  Germany
@@ -12,6 +12,6 @@ Require-Bundle: org.knime.core;bundle-version="2.12.0",
  org.knime.js.base;bundle-version="2.12.0",
  org.knime.js.core;bundle-version="2.12.0",
  com.fasterxml.jackson.core.jackson-annotations,
- org.knime.exp.activelearning;bundle-version="0.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+ org.knime.exp.activelearning;bundle-version="0.0.5"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

@@ -15,7 +15,7 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="AL-Loop.svg"
-   inkscape:export-filename="/home/gabriel/git/knime-activelearning/org.knime.activelearning/src/org/knime/al/nodes/loop/start/AL-Loop.png"
+   inkscape:export-filename="/home/gabriel/git/knime-activelearning-js/org.knime.activelearning-js/src/org/knime/al/js/nodes/loop/end/AL-Loop.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -388,16 +388,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="17.125"
-     inkscape:cx="15.351277"
-     inkscape:cy="17.693448"
+     inkscape:cx="5.2198901"
+     inkscape:cy="8.3503823"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1051"
-     inkscape:window-x="1280"
-     inkscape:window-y="29"
-     inkscape:window-maximized="1">
+     inkscape:window-width="734"
+     inkscape:window-height="430"
+     inkscape:window-x="534"
+     inkscape:window-y="244"
+     inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
        id="grid5331" />
@@ -410,7 +410,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -431,27 +431,27 @@
        transform="matrix(0,-1,-1,0,0,0)" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.22655928px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Send-5-0-7-1)"
-       d="m 2.4393851,1046.1611 c 1.7820534,2.054 3.8104425,2.7386 5.7298437,2.5657 1.9124052,-0.1723 3.7166242,-1.1957 5.0612192,-2.5637 0.01244,-0.013 0.02339,-0.026 0.03719,-0.038"
+       d="m 2.7897501,1046.3947 c 1.7820534,2.054 3.8104425,2.7386 5.7298437,2.5657 1.9124052,-0.1723 3.7166242,-1.1957 5.0612192,-2.5637 0.01244,-0.013 0.02339,-0.026 0.03719,-0.038"
        id="path5055-2-2"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cssc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.22655928px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Send-5-0-7-1-4)"
-       d="m 13.341213,1041.2543 c -1.782054,-2.0541 -3.8104421,-2.7386 -5.7298434,-2.5657 -1.9124052,0.1723 -3.7166243,1.1957 -5.0612188,2.5637 -0.01244,0.013 -0.023392,0.026 -0.037195,0.039"
+       d="m 14.100337,1040.2032 c -1.782054,-2.0541 -3.810442,-2.7386 -5.7298433,-2.5657 -1.9124052,0.1723 -3.7166243,1.1957 -5.0612188,2.5637 -0.01244,0.013 -0.023392,0.026 -0.037195,0.039"
        id="path5055-2-2-0"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cssc" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="4.9781022"
-       y="1045.384"
+       x="3.6934307"
+       y="1045.968"
        id="text4376"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4378"
-         x="4.9781022"
-         y="1045.384"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5px;font-family:monospace;-inkscape-font-specification:monospace">JS</tspan></text>
+         x="3.6934307"
+         y="1045.968"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.5px;font-family:monospace;-inkscape-font-specification:'monospace Bold'">JS</tspan></text>
   </g>
 </svg>
