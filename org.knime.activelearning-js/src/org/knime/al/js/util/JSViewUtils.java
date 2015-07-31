@@ -50,9 +50,13 @@
  */
 package org.knime.al.js.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -64,6 +68,8 @@ import org.knime.core.node.NodeSettingsWO;
  */
 public class JSViewUtils {
 
+    private static final String VALUE = "value_";
+    private static final String KEY = "key_";
     private static final String NUM_SETTINGS = "numSettings";
 
     /**
@@ -77,10 +83,10 @@ public class JSViewUtils {
         settings.addInt(NUM_SETTINGS, map.size());
         int i = 0;
         for (final Entry<String, String> entry : map.entrySet()) {
-            settings.addString("key_" + i, entry.getKey());
+            settings.addString(KEY + i, entry.getKey());
 
             final String value = entry.getValue();
-            final String valueKey = "value_" + i;
+            final String valueKey = VALUE + i;
             if (value == null) {
                 settings.addString(valueKey, null);
                 continue;
@@ -101,13 +107,73 @@ public class JSViewUtils {
     public static Map<String, String> loadMap(final NodeSettingsRO settings)
             throws InvalidSettingsException {
         final int numSettings = settings.getInt(NUM_SETTINGS);
-        final Map<String, String> map = new HashMap<>();
+        final Map<String, String> map = new HashMap<>(numSettings);
         for (int i = 0; i < numSettings; i++) {
-            final String key = settings.getString("key_" + i);
-            final String value = settings.getString("value_" + i);
+            final String key = settings.getString(KEY + i);
+            final String value = settings.getString(VALUE + i);
             map.put(key, value);
         }
         return map;
+    }
+
+    /**
+     * @param settings
+     * @param list
+     */
+    public static void saveList(final NodeSettingsWO settings,
+            final List<String> list) {
+        settings.addInt(NUM_SETTINGS, list.size());
+        int i = 0;
+        for (final String entry : list) {
+            final String key = KEY + i;
+            settings.addString(key, entry);
+            i++;
+        }
+    }
+
+    /**
+     * @param settings
+     * @return the loaded list
+     * @throws InvalidSettingsException
+     */
+    public static List<String> loadList(final NodeSettingsRO settings)
+            throws InvalidSettingsException {
+        final int numSettings = settings.getInt(NUM_SETTINGS);
+        final List<String> list = new ArrayList<>(numSettings);
+        for (int i = 0; i < numSettings; i++) {
+            list.add(settings.getString(KEY));
+        }
+        return list;
+    }
+
+    /**
+     * @param settings
+     * @param set
+     */
+    public static void saveSet(final NodeSettingsWO settings,
+            final Set<String> set) {
+        settings.addInt(NUM_SETTINGS, set.size());
+        int i = 0;
+        for (final String entry : set) {
+            final String key = KEY + i;
+            settings.addString(key, entry);
+            i++;
+        }
+    }
+
+    /**
+     * @param settings
+     * @return the loaded set
+     * @throws InvalidSettingsException
+     */
+    public static Set<String> loadSet(final NodeSettingsRO settings)
+            throws InvalidSettingsException {
+        final int numSettings = settings.getInt(NUM_SETTINGS);
+        final Set<String> set = new HashSet<>(numSettings);
+        for (int i = 0; i < numSettings; i++) {
+            set.add(settings.getString(KEY));
+        }
+        return set;
     }
 
 }
