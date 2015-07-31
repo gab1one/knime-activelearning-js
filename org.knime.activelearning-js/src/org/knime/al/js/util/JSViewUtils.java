@@ -66,7 +66,11 @@ import org.knime.core.node.NodeSettingsWO;
  *
  * @author gabriel
  */
-public class JSViewUtils {
+public final class JSViewUtils {
+
+    private JSViewUtils() {
+        // NB Util class
+    }
 
     private static final String VALUE = "value_";
     private static final String KEY = "key_";
@@ -76,7 +80,9 @@ public class JSViewUtils {
      * Stores a <String, String> Map to the given settings .
      *
      * @param settings
+     *            the node settings
      * @param map
+     *            the map to save
      */
     public static void saveMap(final NodeSettingsWO settings,
             final Map<String, String> map) {
@@ -98,11 +104,13 @@ public class JSViewUtils {
     }
 
     /**
-     * Loads a map from the NodeSettings
+     * Loads a map from the NodeSettings.
      *
      * @param settings
+     *            the NodeSettings
      * @return the map
      * @throws InvalidSettingsException
+     *             if the settings are invalid
      */
     public static Map<String, String> loadMap(final NodeSettingsRO settings)
             throws InvalidSettingsException {
@@ -117,8 +125,12 @@ public class JSViewUtils {
     }
 
     /**
+     * saves a list to the NodeSettings.
+     *
      * @param settings
+     *            the node Settings
      * @param list
+     *            the list
      */
     public static void saveList(final NodeSettingsWO settings,
             final List<String> list) {
@@ -132,9 +144,13 @@ public class JSViewUtils {
     }
 
     /**
+     * Loads a list from the node settings.
+     *
      * @param settings
+     *            the nodesettings
      * @return the loaded list
      * @throws InvalidSettingsException
+     *             if the settings are invalids
      */
     public static List<String> loadList(final NodeSettingsRO settings)
             throws InvalidSettingsException {
@@ -147,8 +163,12 @@ public class JSViewUtils {
     }
 
     /**
+     * Saves a set to the node settings.
+     *
      * @param settings
+     *            the node settings
      * @param set
+     *            the set to save
      */
     public static void saveSet(final NodeSettingsWO settings,
             final Set<String> set) {
@@ -162,7 +182,10 @@ public class JSViewUtils {
     }
 
     /**
+     * Loads a set from the node settings.
+     *
      * @param settings
+     *            the node settings
      * @return the loaded set
      * @throws InvalidSettingsException
      */
