@@ -2,23 +2,33 @@
 <knimeNode icon="AL-Loop.png" type="LoopEnd">
 	<name>Active Learn JS Loop End</name>
 	<shortDescription>
-		Active Learn Loop End node that provides a JavaScript annotation view.
+		Active Learn Loop End node that provides a JavaScript
+		annotation view.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>...</intro>
 		<option name="Representative Column" optional="false">The column which
-			value will be shown in the detailed view area of View.</option>
+			value will be shown in the detailed view area of View.
+		</option>
 		<option name="Class Column" optional="false">The column which holds the
-			classes in each row.</option>
+			classes in each row.
+		</option>
 	</fullDescription>
 
 	<ports>
+		<inPort name="Learning Data" index="0">The row(s) for the Oracle
+		</inPort>
+		<inPort name="Pass through port" index="1"> The intended result of
+			the AL Process
+		</inPort>
+		<outPort name="Pass through" index="0">The result of the AL
+			Process</outPort>
 	</ports>
 
-	<views>
-		<view index="0" name="Active Learn View">
-		TODO:!
-		</view>
-	</views>
+<!-- 	<views> -->
+<!-- 		<view index="0" name="Active Learn View"> -->
+<!-- 			TODO:! -->
+<!-- 		</view> -->
+<!-- 	</views> -->
 </knimeNode>

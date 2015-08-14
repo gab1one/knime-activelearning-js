@@ -55,25 +55,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.knime.al.js.util.server.ALFileServer;
 import org.knime.al.nodes.loop.ActiveLearnLoopEnd;
 import org.knime.al.nodes.loop.ActiveLearnLoopUtils;
 import org.knime.al.util.NodeUtils;
 import org.knime.core.data.DataCell;
-import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataType;
 import org.knime.core.data.DataValue;
-import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.StringValue;
-import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
@@ -95,6 +93,10 @@ public class ActiveLearnJsLoopEndNodeModel extends
             .createRepColumnModel();
     private final SettingsModelOptionalString m_defaultClassNameModel = ActiveLearnJsLoopEndSettingsModels
             .createDefaultClassModel();
+    private final SettingsModelInteger m_serverPortModel = ActiveLearnJsLoopEndSettingsModels
+            .createServerPortModel();
+
+    private ALFileServer m_fileServer;
 
     private static final int LEARNING_DATA = 0;
     private static final int PASSTHROUGH_PORT = 1;
@@ -107,6 +109,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
     private ActiveLearnJsLoopEndViewRepresentation m_representation;
     private ActiveLearnJsLoopViewValue m_viewValue;
     private List<SettingsModel> m_settingsModels;
+    private Map<String, DataCell> m_repMap;
 
     /**
     *
@@ -151,62 +154,43 @@ public class ActiveLearnJsLoopEndNodeModel extends
                 // TODO: Get new data from view
             }
 
+            m_fileServer.stop();
             super.continueLoop();
         } else {
+            // normal execution
+            m_previousIteration = currentIteration;
 
             final BufferedDataTable learningData = (BufferedDataTable) inObjects[LEARNING_DATA];
 
             m_repColIdx = learningData.getDataTableSpec()
                     .findColumnIndex(m_repColModel.getStringValue());
 
-            // normal execution
-            m_previousIteration = currentIteration;
-
+            // updated learning count
             if (learningData.getRowCount() > 0) {
                 synchronized (getLock()) {
 
-                    final Map<String, String> rowLabels = new HashMap<>(
+                    final Map<String, String> rowIDs = new HashMap<>(
                             learningData.getRowCount());
 
-                    final Map<String, String> rowRepresentation = new HashMap<>(
-                            learningData.getRowCount());
+                    m_repMap = new HashMap<String, DataCell>();
 
                     // get data
                     for (final DataRow row : learningData) {
                         // initialize with empty class labels
                         final String rowKey = row.getKey().getString();
-                        rowLabels.put(rowKey, "");
+                        rowIDs.put(rowKey, "");
 
-                        // convert image to
-                        final String rowRep = convertRepresentation(
-                                row.getCell(m_repColIdx));
-
+                        m_repMap.put(rowKey, row.getCell(m_repColIdx));
                     }
-
-                    // TODO CREATE View Value! View stuff!
-
-                    // final Set<String> classLabels = ((ActiveLearnLoopStart)
-                    // getLoopStartNode())
-                    // .getDefinedClassLabels();
-                    // m_viewValue = new ActiveLearnJsLoopViewValue(classLabels,
-                    // rowLabels);
-
                 }
+                m_fileServer = new ALFileServer(m_serverPortModel.getIntValue(),
+                        m_repMap,
+                        learningData.getSpec().getColumnSpec(m_classColIdx));
             }
         }
 
-        // return an empty table when the optional input is not connected
         return new BufferedDataTable[] {
                 (BufferedDataTable) inObjects[PASSTHROUGH_PORT] };
-    }
-
-    /**
-     * @param cell
-     * @return
-     */
-    private String convertRepresentation(final DataCell cell) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /**
@@ -217,18 +201,18 @@ public class ActiveLearnJsLoopEndNodeModel extends
         return m_newLabeledRows;
     }
 
-    private ColumnRearranger createRepresentativeColumnRearranger(
-            final DataTableSpec in) {
-        final ColumnRearranger c = new ColumnRearranger(in);
-        for (final DataColumnSpec colSpec : in) {
-            final DataType type = colSpec.getType();
-            if (!type.isCompatible(DoubleValue.class)
-                    && !type.isCompatible(StringValue.class)) {
-                c.remove(colSpec.getName());
-            }
-        }
-        return c;
-    }
+    // private ColumnRearranger createRepresentativeColumnRearranger(
+    // final DataTableSpec in) {
+    // final ColumnRearranger c = new ColumnRearranger(in);
+    // for (final DataColumnSpec colSpec : in) {
+    // final DataType type = colSpec.getType();
+    // if (!type.isCompatible(DoubleValue.class)
+    // && !type.isCompatible(StringValue.class)) {
+    // c.remove(colSpec.getName());
+    // }
+    // }
+    // return c;
+    // }
 
     /**
      * Initializes the settings model storage.
@@ -237,10 +221,11 @@ public class ActiveLearnJsLoopEndNodeModel extends
      */
     protected List<SettingsModel> collectSettingsModels() {
         if (m_settingsModels == null) {
-            m_settingsModels = new ArrayList<SettingsModel>(3);
+            m_settingsModels = new ArrayList<SettingsModel>(4);
             m_settingsModels.add(m_classColModel);
             m_settingsModels.add(m_defaultClassNameModel);
             m_settingsModels.add(m_repColModel);
+            m_settingsModels.add(m_serverPortModel);
         }
         return m_settingsModels;
     }
@@ -319,6 +304,9 @@ public class ActiveLearnJsLoopEndNodeModel extends
             m_previousIteration = -1; // To ensure node gets executed again
             m_representation = createEmptyViewRepresentation();
             m_viewValue = createEmptyViewValue();
+            if (m_fileServer != null) {
+                m_fileServer.stop();
+            }
         }
     }
 
@@ -327,8 +315,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
      */
     @Override
     protected String getInteractiveViewName() {
-        // TODO Auto-generated method stub
-        return null;
+        return "Active Learn Oracle View";
     }
 
     /**
@@ -345,8 +332,10 @@ public class ActiveLearnJsLoopEndNodeModel extends
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-        // TODO Auto-generated method stub
-
+        collectSettingsModels();
+        for (final SettingsModel model : m_settingsModels) {
+            model.saveSettingsTo(settings);
+        }
     }
 
     /**
@@ -355,8 +344,10 @@ public class ActiveLearnJsLoopEndNodeModel extends
     @Override
     protected void validateSettings(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-        // TODO Auto-generated method stub
-
+        collectSettingsModels();
+        for (final SettingsModel model : m_settingsModels) {
+            model.validateSettings(settings);
+        }
     }
 
     /**
@@ -365,8 +356,10 @@ public class ActiveLearnJsLoopEndNodeModel extends
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-        // TODO Auto-generated method stub
-
+        collectSettingsModels();
+        for (final SettingsModel model : m_settingsModels) {
+            model.loadSettingsFrom(settings);
+        }
     }
 
     /**
@@ -374,8 +367,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
      */
     @Override
     public ActiveLearnJsLoopViewValue createEmptyViewValue() {
-        // TODO Auto-generated method stub
-        return null;
+        return new ActiveLearnJsLoopViewValue();
     }
 
     /**

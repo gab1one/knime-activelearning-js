@@ -64,8 +64,8 @@ import javax.imageio.ImageIO;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
-import org.knime.core.data.renderer.DataValueRenderer;
 import org.knime.core.data.renderer.DataValueRendererFactory;
+import org.knime.core.data.renderer.DataValueRendererFamily;
 import org.knime.core.node.NodeLogger;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -87,22 +87,27 @@ public class ALFileServer extends NanoHTTPD {
 
     private final Map<String, DataCell> m_cells;
 
-    private DataColumnSpec spec;
+    private final DataColumnSpec m_spec;
 
     /**
      * @param port
      *            the port the server will run at
      * @param dataCells
      *            the map to the cells
+     * @param spec
+     *            the spec of the column the cells are from
      */
-    public ALFileServer(final int port, final Map<String, DataCell> dataCells) {
+    public ALFileServer(final int port, final Map<String, DataCell> dataCells,
+            final DataColumnSpec spec) {
         super(port);
 
         m_cells = dataCells;
+        m_spec = spec;
+
         try {
             start();
         } catch (final IOException e) {
-            m_logger.error("Can't start the webserver!");
+            m_logger.error("Can't start the webserver!" + e.getMessage());
         }
     }
 
@@ -137,14 +142,17 @@ public class ALFileServer extends NanoHTTPD {
             throws IOException {
         final Collection<DataValueRendererFactory> renderFactories = cell
                 .getType().getRendererFactories();
+        final DataValueRendererFamily derp = cell.getType().getRenderer(m_spec);
+        final Dimension dim = derp.getPreferredSize();
+        final Component comp = derp.getRendererComponent(cell);
+        //
+        // final DataValueRenderer renderer = renderFactories.iterator().next()
+        // .createRenderer(m_spec); // get the preferred renderer
+        // final Component comp = renderer.getRendererComponent(cell);
 
-        final DataValueRenderer renderer = renderFactories.iterator().next()
-                .createRenderer(spec); // get the preferred renderer
-        final Component comp = renderer.getRendererComponent(cell);
+        comp.setSize(dim);
 
-        comp.setSize(dims);
-
-        final BufferedImage image = new BufferedImage(dims.width, dims.height,
+        final BufferedImage image = new BufferedImage(dim.width, dim.height,
                 BufferedImage.TYPE_INT_ARGB);
 
         // create graphics object to paint in
@@ -192,5 +200,4 @@ public class ALFileServer extends NanoHTTPD {
         return newFixedLengthResponse(Response.Status.INTERNAL_ERROR,
                 NanoHTTPD.MIME_PLAINTEXT, "INTERNAL ERROR: " + message);
     }
-
 }

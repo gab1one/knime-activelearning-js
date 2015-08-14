@@ -50,6 +50,7 @@
  */
 package org.knime.al.js.nodes.loop.end;
 
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
@@ -81,8 +82,16 @@ public final class ActiveLearnJsLoopEndSettingsModels {
     /**
      * * @return Model to store the default class name
      */
-    public static SettingsModelOptionalString createDefaultClassModel() {
+    protected static SettingsModelOptionalString createDefaultClassModel() {
         return new SettingsModelOptionalString("default_class_name", "DEFAULT",
                 false);
     }
+
+    /**
+     * * @return Model to store the port of the File Server
+     */
+    protected static SettingsModelInteger createServerPortModel() {
+        return new SettingsModelInteger("server_port", 8042);
+    }
+
 }

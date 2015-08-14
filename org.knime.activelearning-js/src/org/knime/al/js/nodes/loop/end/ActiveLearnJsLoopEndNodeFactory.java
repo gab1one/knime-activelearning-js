@@ -56,6 +56,7 @@ import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
+import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentOptionalString;
 import org.knime.core.node.wizard.WizardNodeFactoryExtension;
 
@@ -64,9 +65,8 @@ import org.knime.core.node.wizard.WizardNodeFactoryExtension;
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
 public class ActiveLearnJsLoopEndNodeFactory
-        extends NodeFactory<ActiveLearnJsLoopEndNodeModel> implements
-        WizardNodeFactoryExtension<ActiveLearnJsLoopEndNodeModel,
-        ActiveLearnJsLoopEndViewRepresentation, ActiveLearnJsLoopViewValue> {
+        extends NodeFactory<ActiveLearnJsLoopEndNodeModel>implements
+        WizardNodeFactoryExtension<ActiveLearnJsLoopEndNodeModel, ActiveLearnJsLoopEndViewRepresentation, ActiveLearnJsLoopViewValue> {
 
     /**
      * {@inheritDoc}
@@ -124,6 +124,11 @@ public class ActiveLearnJsLoopEndNodeFactory
                         ActiveLearnJsLoopEndSettingsModels
                                 .createDefaultClassModel(),
                         "Allow Unlabeled Rows; Default Class:"));
+
+                addDialogComponent(new DialogComponentNumber(
+                        ActiveLearnJsLoopEndSettingsModels
+                                .createServerPortModel(),
+                        "Fileserver Port", 1));
             }
         };
     }

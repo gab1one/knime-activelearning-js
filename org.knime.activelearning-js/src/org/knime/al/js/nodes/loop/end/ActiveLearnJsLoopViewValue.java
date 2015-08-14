@@ -71,10 +71,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class ActiveLearnJsLoopViewValue extends JSONViewContent {
 
+    // FIXME Move these to central file
     private static final String ROW_LABELS = "row_labelings_key";
     private static final String CLASS_LABELS = "class_labels_key";
+    private static final String SERVERPORT_LABEL = "server_port";
+
+
     private Set<String> m_classLabels;
     private Map<String, String> m_rowLabels;
+    private int m_serverPort;
 
     /**
      * Serialization constructor, do not use!
@@ -115,6 +120,16 @@ public class ActiveLearnJsLoopViewValue extends JSONViewContent {
         m_rowLabels = JSViewUtils.loadMap(settings.getNodeSettings(ROW_LABELS));
         m_classLabels = JSViewUtils
                 .loadSet(settings.getNodeSettings(CLASS_LABELS));
+        m_serverPort = settings.getInt(SERVERPORT_LABEL);
+    }
+
+
+
+    /**
+     * @return the serverPort
+     */
+    public int getServerPort() {
+        return m_serverPort;
     }
 
     /**
@@ -146,5 +161,4 @@ public class ActiveLearnJsLoopViewValue extends JSONViewContent {
     public void setRowLabels(final Map<String, String> rowLabels) {
         m_rowLabels = rowLabels;
     }
-
 }
