@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Active Learning Plug-in Js Loop end
 Bundle-SymbolicName: org.knime.exp.activelearningjs;singleton:=true
 Bundle-Version: 0.0.0.qualifier
-Bundle-ClassPath: knime_activelearning-js.jar
+Bundle-ClassPath: knime_activelearning-js.jar,
+ lib/nanohttpd-webserver-2.2.0-SNAPSHOT.jar
 Bundle-Vendor: Chair for Bioinformatics and Information Mining,
  University of Konstanz,
  Germany
@@ -13,5 +14,5 @@ Require-Bundle: org.knime.core;bundle-version="2.12.0",
  org.knime.js.core;bundle-version="2.12.0",
  com.fasterxml.jackson.core.jackson-annotations,
  org.knime.exp.activelearning;bundle-version="0.0.5"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
