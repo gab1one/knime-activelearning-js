@@ -57,6 +57,7 @@ import java.util.Map;
 
 import org.knime.al.js.util.server.ALFileServer;
 import org.knime.al.nodes.loop.ActiveLearnLoopEnd;
+import org.knime.al.nodes.loop.ActiveLearnLoopStart;
 import org.knime.al.nodes.loop.ActiveLearnLoopUtils;
 import org.knime.al.util.NodeUtils;
 import org.knime.core.data.DataCell;
@@ -72,7 +73,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
-import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortType;
@@ -148,10 +148,10 @@ public class ActiveLearnJsLoopEndNodeModel extends
         // user pressed the apply button
         if (currentIteration == m_previousIteration) {
             synchronized (getLock()) {
-
-                // TODO: Get new data from view
+                m_newLabeledRows = new HashMap<>();
+                m_viewValue.getRowLabels().forEach((key,
+                        value) -> m_newLabeledRows.put(new RowKey(key), value));
             }
-
             m_fileServer.stop();
             super.continueLoop();
         } else {
@@ -167,10 +167,17 @@ public class ActiveLearnJsLoopEndNodeModel extends
             if (learningData.getRowCount() > 0) {
                 synchronized (getLock()) {
 
+                    // Create representation
                     final Map<String, String> rowIDs = new HashMap<>(
                             learningData.getRowCount());
-
                     m_repMap = new HashMap<String, DataCell>();
+
+                    m_representation = new ActiveLearnJsLoopEndViewRepresentation(
+                            rowIDs);
+                    m_viewValue = new ActiveLearnJsLoopViewValue(
+                            ((ActiveLearnLoopStart) getLoopStartNode())
+                                    .getDefinedClassLabels(),
+                            new HashMap<>());
 
                     // get data
                     for (final DataRow row : learningData) {
@@ -180,6 +187,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
 
                         m_repMap.put(rowKey, row.getCell(m_repColIdx));
                     }
+
                 }
                 m_fileServer = new ALFileServer(m_serverPortModel.getIntValue(),
                         m_repMap,
@@ -266,7 +274,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
      */
     @Override
     public String getJavascriptObjectID() {
-        return "org_knime_al_nodes_loop_end2";
+        return "org_knime_al_js_loopendview";
     }
 
     /**
