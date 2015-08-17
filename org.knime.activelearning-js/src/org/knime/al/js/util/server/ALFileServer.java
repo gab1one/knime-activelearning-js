@@ -64,9 +64,12 @@ import javax.imageio.ImageIO;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.StringValue;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.data.renderer.DataValueRendererFactory;
 import org.knime.core.data.renderer.DataValueRendererFamily;
 import org.knime.core.node.NodeLogger;
+import org.knime.knip.base.data.img.ImgPlusCell;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
@@ -81,9 +84,6 @@ public class ALFileServer extends NanoHTTPD {
             .getLogger(ALFileServer.class);
 
     private static final String PNG = "image/png";
-    private static final String TEXT = "text/plain";
-
-    private static final Dimension dims = new Dimension(250, 250);
 
     private final Map<String, DataCell> m_cells;
 
@@ -111,6 +111,9 @@ public class ALFileServer extends NanoHTTPD {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Response serve(final IHTTPSession session) {
 
@@ -123,12 +126,42 @@ public class ALFileServer extends NanoHTTPD {
         // strip "/" from url
         final String rowID = session.getUri().replace("/", "");
 
+        if ("".equals(rowID)) {
+            return getRootResponse();
+        }
+
         // abort early
         if (!m_cells.containsKey(rowID)) {
             return getNotFoundResponse();
         }
 
         final DataCell cell = m_cells.get(rowID);
+
+        if (cell instanceof ImgPlusCell) {
+            return getImageResponse(cell);
+        } else if (cell instanceof StringCell) {
+            return getStringResponse(cell);
+        } else {
+            return getInternalErrorResponse(cell.getClass().getCanonicalName()
+                    + " is not a supported data type!");
+        }
+
+    }
+
+    /**
+     * @param cell
+     * @return
+     */
+    private Response getStringResponse(final DataCell cell) {
+        final String val = ((StringValue) cell).getStringValue();
+        return newFixedLengthResponse(Status.OK, NanoHTTPD.MIME_PLAINTEXT, val);
+    }
+
+    /**
+     * @param cell
+     * @return Response for an Image Cell
+     */
+    private Response getImageResponse(final DataCell cell) {
         final ByteArrayInputStream bos;
         try {
             bos = createImage(cell);
@@ -172,7 +205,7 @@ public class ALFileServer extends NanoHTTPD {
      *            an additional message
      * @return A response indicating that the requested action is forbidden.
      */
-    protected Response getForbiddenResponse(final String message) {
+    private Response getForbiddenResponse(final String message) {
         m_logger.warn("Blocked forbidden request: " + message);
         return newFixedLengthResponse(Response.Status.FORBIDDEN,
                 NanoHTTPD.MIME_PLAINTEXT,
@@ -182,7 +215,7 @@ public class ALFileServer extends NanoHTTPD {
     /**
      * @return a 404 Response
      */
-    protected Response getNotFoundResponse() {
+    private Response getNotFoundResponse() {
         m_logger.warn("");
 
         return newFixedLengthResponse(Response.Status.NOT_FOUND,
@@ -192,12 +225,21 @@ public class ALFileServer extends NanoHTTPD {
     /**
      * @param message
      *            the message
-     * @return the Internal Error Response
+     * @return an Internal Error Response
      */
-    protected Response getInternalErrorResponse(final String message) {
+    private Response getInternalErrorResponse(final String message) {
         m_logger.error(
                 "An internal error occured in the Webserver: " + message);
         return newFixedLengthResponse(Response.Status.INTERNAL_ERROR,
                 NanoHTTPD.MIME_PLAINTEXT, "INTERNAL ERROR: " + message);
+    }
+
+    /**
+     * @return response for the root directory
+     */
+    private Response getRootResponse() {
+        return newFixedLengthResponse(Response.Status.OK,
+                NanoHTTPD.MIME_PLAINTEXT,
+                "KNIME Active Learning Loop End Data Server");
     }
 }

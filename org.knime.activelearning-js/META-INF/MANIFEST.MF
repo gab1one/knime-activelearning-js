@@ -13,6 +13,7 @@ Require-Bundle: org.knime.core;bundle-version="2.12.0",
  org.knime.js.base;bundle-version="2.12.0",
  org.knime.js.core;bundle-version="2.12.0",
  com.fasterxml.jackson.core.jackson-annotations,
- org.knime.exp.activelearning;bundle-version="0.0.5"
+ org.knime.exp.activelearning;bundle-version="0.0.5",
+ org.knime.knip.base
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
