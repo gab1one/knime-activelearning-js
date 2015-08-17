@@ -91,8 +91,6 @@ public class ActiveLearnJsLoopEndNodeModel extends
             .createClassColumnModel();
     private final SettingsModelString m_repColModel = ActiveLearnJsLoopEndSettingsModels
             .createRepColumnModel();
-    private final SettingsModelOptionalString m_defaultClassNameModel = ActiveLearnJsLoopEndSettingsModels
-            .createDefaultClassModel();
     private final SettingsModelInteger m_serverPortModel = ActiveLearnJsLoopEndSettingsModels
             .createServerPortModel();
 
@@ -201,19 +199,6 @@ public class ActiveLearnJsLoopEndNodeModel extends
         return m_newLabeledRows;
     }
 
-    // private ColumnRearranger createRepresentativeColumnRearranger(
-    // final DataTableSpec in) {
-    // final ColumnRearranger c = new ColumnRearranger(in);
-    // for (final DataColumnSpec colSpec : in) {
-    // final DataType type = colSpec.getType();
-    // if (!type.isCompatible(DoubleValue.class)
-    // && !type.isCompatible(StringValue.class)) {
-    // c.remove(colSpec.getName());
-    // }
-    // }
-    // return c;
-    // }
-
     /**
      * Initializes the settings model storage.
      *
@@ -223,7 +208,6 @@ public class ActiveLearnJsLoopEndNodeModel extends
         if (m_settingsModels == null) {
             m_settingsModels = new ArrayList<SettingsModel>(4);
             m_settingsModels.add(m_classColModel);
-            m_settingsModels.add(m_defaultClassNameModel);
             m_settingsModels.add(m_repColModel);
             m_settingsModels.add(m_serverPortModel);
         }
@@ -246,8 +230,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
      */
     @Override
     public void saveCurrentValue(final NodeSettingsWO content) {
-        // TODO Auto-generated method stub
-
+        // do nothing
     }
 
     /**
@@ -376,7 +359,6 @@ public class ActiveLearnJsLoopEndNodeModel extends
     @Override
     public ValidationError validateViewValue(
             final ActiveLearnJsLoopViewValue viewContent) {
-        // TODO Auto-generated method stub
         return null;
     }
 }

@@ -57,7 +57,6 @@ import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
-import org.knime.core.node.defaultnodesettings.DialogComponentOptionalString;
 import org.knime.core.node.wizard.WizardNodeFactoryExtension;
 
 /**
@@ -119,11 +118,6 @@ public class ActiveLearnJsLoopEndNodeFactory
                         ActiveLearnJsLoopEndSettingsModels
                                 .createClassColumnModel(),
                         "Class  Column", 0, StringValue.class));
-
-                addDialogComponent(new DialogComponentOptionalString(
-                        ActiveLearnJsLoopEndSettingsModels
-                                .createDefaultClassModel(),
-                        "Allow Unlabeled Rows; Default Class:"));
 
                 addDialogComponent(new DialogComponentNumber(
                         ActiveLearnJsLoopEndSettingsModels

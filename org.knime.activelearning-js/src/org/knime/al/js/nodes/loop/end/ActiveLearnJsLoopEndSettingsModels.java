@@ -51,7 +51,6 @@
 package org.knime.al.js.nodes.loop.end;
 
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
-import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
@@ -77,14 +76,6 @@ public final class ActiveLearnJsLoopEndSettingsModels {
      */
     protected static SettingsModelString createClassColumnModel() {
         return new SettingsModelString("class_column", "");
-    }
-
-    /**
-     * * @return Model to store the default class name
-     */
-    protected static SettingsModelOptionalString createDefaultClassModel() {
-        return new SettingsModelOptionalString("default_class_name", "DEFAULT",
-                false);
     }
 
     /**
