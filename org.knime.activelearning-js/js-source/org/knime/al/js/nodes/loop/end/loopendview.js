@@ -74,7 +74,6 @@ knime_al_loopend = function() {
 		_value = value;
 		_port = _representation.serverPort;
 
-
 		var body = document.getElementsByTagName("body")[0];
 		// var width = representation.maxWidth;
 		// var height = representation.maxHeight;
@@ -91,7 +90,6 @@ knime_al_loopend = function() {
 			div.setAttribute("title", representation.description);
 		}
 
-
 		if (representation.format == "PNG") {
 			for (var i = 0; i < _rows.length; i++) {
 				var img = document.createElement("img");
@@ -101,7 +99,7 @@ knime_al_loopend = function() {
 				// img.style.maxWidth = 300 + "px";
 				// // }
 				// // if (height >= 0) {
-				//				img.style.maxHeight = 400 + "px";
+				// img.style.maxHeight = 400 + "px";
 				// }
 			}
 		} else {
@@ -126,23 +124,21 @@ knime_al_loopend = function() {
 		label_select.className = 'class_of_select';
 
 		// Define something to do onChange
-		label_select.onchange = function () {
-		    // Do whatever you want to do when the select changes
-		    alert('You selected '+this.selectedIndex);
+		label_select.onchange = function() {
+			// Do whatever you want to do when the select changes
+			_value.rowLabels.put(_rows[0], label_select);
+
 		};
 
 		// Add some <option>s
 		for (j = 0; j < _value.classLabels.length; j++) {
-		    label_opt = document.createElement('option');
-		    label_opt.value = _value.classLabels[j];
-		    label_opt.innerHTML = _value.classLabels[j];
-		    label_select.appendChild(label_opt);
+			label_opt = document.createElement('option');
+			label_opt.value = _value.classLabels[j];
+			label_opt.innerHTML = _value.classLabels[j];
+			label_select.appendChild(label_opt);
 		}
 
-		// Add the <div> to the DOM, then add the <select> to the <div>
-		// document.getElementById('container_for_select_container').appendChild(label_div);
 		label_div.appendChild(label_select);
-
 
 		var label_input = document.createElement("input");
 		label_input.setAttribute("type", "text");
@@ -152,14 +148,18 @@ knime_al_loopend = function() {
 
 		var add_btn = document.createElement("button");
 		add_btn.innerHTML = "Add Class Label";
-		add_btn.onclick="addClass();"
-		label_div.appendChild(add_btn);
 
-		var addClass = function(){
+		add_btn.onclick = function() {
 			var nclass = label_input.value;
+			label_input.value = "";
+
+			label_opt = document.createElement("option");
+			label_opt.value = nclass;
+			label_opt.innerHTML = nclass;
+			label_select.appendChild(label_opt);
 		};
 
-
+		label_div.appendChild(add_btn);
 		resizeParent();
 	};
 
@@ -171,7 +171,7 @@ knime_al_loopend = function() {
 	};
 
 	view.value = function() {
-		return null;
+		return _value;
 	};
 
 	return view;

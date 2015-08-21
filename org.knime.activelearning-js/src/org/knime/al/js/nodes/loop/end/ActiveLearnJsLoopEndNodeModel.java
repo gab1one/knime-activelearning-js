@@ -162,20 +162,23 @@ public class ActiveLearnJsLoopEndNodeModel extends
 
                 m_repMap = new HashMap<>(learningData.getRowCount());
 
+                final HashMap<String, String> viewmap = new HashMap<>();
+
                 learningData.forEach((row) -> {
                     rowIDs.add(row.getKey().getString());
                     m_repMap.put(row.getKey().getString(),
                             row.getCell(m_repColIdx));
+                    viewmap.put(row.getKey().getString(), "");
                 });
 
                 final ActiveLearnJsLoopEndViewRepresentation rep = new ActiveLearnJsLoopEndViewRepresentation(
-                        rowIDs, m_serverPortModel.getIntValue(), m_format );
+                        rowIDs, m_serverPortModel.getIntValue(), m_format);
                 setViewRepresentation(rep);
 
                 final ActiveLearnJsLoopViewValue viewVal = new ActiveLearnJsLoopViewValue(
                         ((ActiveLearnLoopStart) getLoopStartNode())
                                 .getDefinedClassLabels(),
-                        new HashMap<>());
+                        viewmap);
                 setViewValue(viewVal);
 
                 // FIXME: Open close with dialog?
@@ -210,7 +213,6 @@ public class ActiveLearnJsLoopEndNodeModel extends
         }
         return m_settingsModels;
     }
-
 
     /**
      * {@inheritDoc}
