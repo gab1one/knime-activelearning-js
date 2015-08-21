@@ -1,5 +1,7 @@
-<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="AL-Loop.png" type="LoopEnd">
+<?xml version="1.0" encoding="utf-8"?>
+<knimeNode icon="AL-Loop.png" type="LoopEnd"
+	xmlns="http://knime.org/node/v2.12" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://knime.org/node/v2.12 http://knime.org/node/v2.12.xsd">
 	<name>Active Learn JS Loop End</name>
 	<shortDescription>
 		Active Learn Loop End node that provides a JavaScript
@@ -16,6 +18,8 @@
 		</option>
 	</fullDescription>
 
+	<interactiveView name="Active View">The active learn view</interactiveView>
+
 	<ports>
 		<inPort name="Learning Data" index="0">The row(s) for the Oracle
 		</inPort>
@@ -23,12 +27,8 @@
 			the AL Process
 		</inPort>
 		<outPort name="Pass through" index="0">The result of the AL
-			Process</outPort>
+			Process
+		</outPort>
 	</ports>
 
-<!-- 	<views> -->
-<!-- 		<view index="0" name="Active Learn View"> -->
-<!-- 			TODO:! -->
-<!-- 		</view> -->
-<!-- 	</views> -->
 </knimeNode>
