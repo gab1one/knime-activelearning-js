@@ -55,17 +55,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.knime.al.js.util.server.ALFileServer;
+import org.knime.al.js.util.server.ActiveLearnFileServer;
 import org.knime.al.nodes.loop.ActiveLearnLoopEnd;
 import org.knime.al.nodes.loop.ActiveLearnLoopStart;
 import org.knime.al.nodes.loop.ActiveLearnLoopUtils;
 import org.knime.al.util.NodeUtils;
 import org.knime.core.data.DataCell;
-import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataValue;
 import org.knime.core.data.RowKey;
-import org.knime.core.data.StringValue;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
@@ -94,18 +92,16 @@ public class ActiveLearnJsLoopEndNodeModel extends
     private final SettingsModelInteger m_serverPortModel = ActiveLearnJsLoopEndSettingsModels
             .createServerPortModel();
 
-    private ALFileServer m_fileServer;
+    private ActiveLearnFileServer m_fileServer;
 
     private static final int LEARNING_DATA = 0;
     private static final int PASSTHROUGH_PORT = 1;
 
-    private int m_classColIdx;
+    // private int m_classColIdx;
     private int m_repColIdx;
-    private int m_previousIteration;
+    private int m_previousIteration = -1;
     private Map<RowKey, String> m_newLabeledRows;
 
-    private ActiveLearnJsLoopEndViewRepresentation m_representation;
-    private ActiveLearnJsLoopViewValue m_viewValue;
     private List<SettingsModel> m_settingsModels;
     private Map<String, DataCell> m_repMap;
 
@@ -115,8 +111,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
     public ActiveLearnJsLoopEndNodeModel() {
 
         super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE },
-                new PortType[] { BufferedDataTable.TYPE });
-
+                new PortType[] { BufferedDataTable.TYPE }, "Al View");
         collectSettingsModels();
     }
 
@@ -127,8 +122,8 @@ public class ActiveLearnJsLoopEndNodeModel extends
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
             throws InvalidSettingsException {
 
-        m_classColIdx = NodeUtils.autoColumnSelection(inSpecs[LEARNING_DATA],
-                m_classColModel, StringValue.class, this.getClass());
+        // m_classColIdx = NodeUtils.autoColumnSelection(inSpecs[LEARNING_DATA],
+        // m_classColModel, StringValue.class, this.getClass());
 
         m_repColIdx = NodeUtils.autoColumnSelection(inSpecs[LEARNING_DATA],
                 m_repColModel, DataValue.class, this.getClass());
@@ -149,7 +144,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
         if (currentIteration == m_previousIteration) {
             synchronized (getLock()) {
                 m_newLabeledRows = new HashMap<>();
-                m_viewValue.getRowLabels().forEach((key,
+                getViewValue().getRowLabels().forEach((key,
                         value) -> m_newLabeledRows.put(new RowKey(key), value));
             }
             m_fileServer.stop();
@@ -164,34 +159,33 @@ public class ActiveLearnJsLoopEndNodeModel extends
                     .findColumnIndex(m_repColModel.getStringValue());
 
             // updated learning count
-            if (learningData.getRowCount() > 0) {
-                synchronized (getLock()) {
+            synchronized (getLock()) {
 
-                    // Create representation
-                    final Map<String, String> rowIDs = new HashMap<>(
-                            learningData.getRowCount());
-                    m_repMap = new HashMap<String, DataCell>();
+                final List<String> rowIDs = new ArrayList<>(
+                        learningData.getRowCount());
 
-                    m_representation = new ActiveLearnJsLoopEndViewRepresentation(
-                            rowIDs);
-                    m_viewValue = new ActiveLearnJsLoopViewValue(
-                            ((ActiveLearnLoopStart) getLoopStartNode())
-                                    .getDefinedClassLabels(),
-                            new HashMap<>());
+                m_repMap = new HashMap<>(learningData.getRowCount());
 
-                    // get data
-                    for (final DataRow row : learningData) {
-                        // initialize with empty class labels
-                        final String rowKey = row.getKey().getString();
-                        rowIDs.put(rowKey, "");
+                learningData.forEach((row) -> {
+                    rowIDs.add(row.getKey().getString());
+                    m_repMap.put(row.getKey().getString(),
+                            row.getCell(m_repColIdx));
+                });
 
-                        m_repMap.put(rowKey, row.getCell(m_repColIdx));
-                    }
+                final ActiveLearnJsLoopEndViewRepresentation rep = new ActiveLearnJsLoopEndViewRepresentation(
+                        rowIDs, m_serverPortModel.getIntValue());
+                setViewRepresentation(rep);
 
-                }
-                m_fileServer = new ALFileServer(m_serverPortModel.getIntValue(),
-                        m_repMap,
-                        learningData.getSpec().getColumnSpec(m_classColIdx));
+                final ActiveLearnJsLoopViewValue viewVal = new ActiveLearnJsLoopViewValue(
+                        ((ActiveLearnLoopStart) getLoopStartNode())
+                                .getDefinedClassLabels(),
+                        new HashMap<>());
+                setViewValue(viewVal);
+
+                // FIXME: Open close with dialog?
+                m_fileServer = new ActiveLearnFileServer(
+                        m_serverPortModel.getIntValue(), m_repMap,
+                        learningData.getSpec().getColumnSpec(m_repColIdx));
             }
         }
 
@@ -222,16 +216,6 @@ public class ActiveLearnJsLoopEndNodeModel extends
         return m_settingsModels;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadViewValue(final ActiveLearnJsLoopViewValue viewContent,
-            final boolean useAsDefault) {
-        synchronized (getLock()) {
-            m_viewValue = viewContent;
-        }
-    }
 
     /**
      * {@inheritDoc}
@@ -239,26 +223,6 @@ public class ActiveLearnJsLoopEndNodeModel extends
     @Override
     public void saveCurrentValue(final NodeSettingsWO content) {
         // do nothing
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ActiveLearnJsLoopEndViewRepresentation getViewRepresentation() {
-        synchronized (getLock()) {
-            return m_representation;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ActiveLearnJsLoopViewValue getViewValue() {
-        synchronized (getLock()) {
-            return m_viewValue;
-        }
     }
 
     /**
@@ -274,7 +238,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
      */
     @Override
     public String getJavascriptObjectID() {
-        return "org_knime_al_js_loopendview";
+        return "org.knime.activelearning.js.loopend";
     }
 
     /**
@@ -293,20 +257,10 @@ public class ActiveLearnJsLoopEndNodeModel extends
         synchronized (getLock()) {
             m_newLabeledRows = null;
             m_previousIteration = -1; // To ensure node gets executed again
-            m_representation = createEmptyViewRepresentation();
-            m_viewValue = createEmptyViewValue();
             if (m_fileServer != null) {
                 m_fileServer.stop();
             }
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected String getInteractiveViewName() {
-        return "Active Learn Oracle View";
     }
 
     /**
@@ -324,9 +278,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
         collectSettingsModels();
-        for (final SettingsModel model : m_settingsModels) {
-            model.saveSettingsTo(settings);
-        }
+        m_settingsModels.forEach((model) -> model.saveSettingsTo(settings));
     }
 
     /**

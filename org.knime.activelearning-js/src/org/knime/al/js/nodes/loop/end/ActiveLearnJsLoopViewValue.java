@@ -74,12 +74,9 @@ public class ActiveLearnJsLoopViewValue extends JSONViewContent {
     // FIXME Move these to central file
     private static final String ROW_LABELS = "row_labelings_key";
     private static final String CLASS_LABELS = "class_labels_key";
-    private static final String SERVERPORT_LABEL = "server_port";
-
 
     private Set<String> m_classLabels;
     private Map<String, String> m_rowLabels;
-    private int m_serverPort;
 
     /**
      * Serialization constructor, do not use!
@@ -91,8 +88,9 @@ public class ActiveLearnJsLoopViewValue extends JSONViewContent {
      * Creates the ViewValue for the JsLoop end view.
      *
      * @param classLabels
-     *            the already known classlabels.
-     * @param rowLabels the labels of the rows
+     *            the already known class labels.
+     * @param rowLabels
+     *            the labels of the rows
      */
     public ActiveLearnJsLoopViewValue(final Set<String> classLabels,
             final Map<String, String> rowLabels) {
@@ -120,17 +118,8 @@ public class ActiveLearnJsLoopViewValue extends JSONViewContent {
         m_rowLabels = JSViewUtils.loadMap(settings.getNodeSettings(ROW_LABELS));
         m_classLabels = JSViewUtils
                 .loadSet(settings.getNodeSettings(CLASS_LABELS));
-        m_serverPort = settings.getInt(SERVERPORT_LABEL);
     }
 
-
-
-    /**
-     * @return the serverPort
-     */
-    public int getServerPort() {
-        return m_serverPort;
-    }
 
     /**
      * @return the class labels
@@ -161,4 +150,51 @@ public class ActiveLearnJsLoopViewValue extends JSONViewContent {
     public void setRowLabels(final Map<String, String> rowLabels) {
         m_rowLabels = rowLabels;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((m_classLabels == null) ? 0 : m_classLabels.hashCode());
+        result = prime * result
+                + ((m_rowLabels == null) ? 0 : m_rowLabels.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ActiveLearnJsLoopViewValue other = (ActiveLearnJsLoopViewValue) obj;
+        if (m_classLabels == null) {
+            if (other.m_classLabels != null) {
+                return false;
+            }
+        } else if (!m_classLabels.equals(other.m_classLabels)) {
+            return false;
+        }
+        if (m_rowLabels == null) {
+            if (other.m_rowLabels != null) {
+                return false;
+            }
+        } else if (!m_rowLabels.equals(other.m_rowLabels)) {
+            return false;
+        }
+        return true;
+    }
+
 }

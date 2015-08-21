@@ -50,7 +50,7 @@
  */
 package org.knime.al.js.nodes.loop.end;
 
-import java.util.Map;
+import java.util.List;
 
 import org.knime.al.js.util.JSViewUtils;
 import org.knime.core.node.InvalidSettingsException;
@@ -67,14 +67,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *
  *
  */
-
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
 
-    private Map<String, String> m_rowRepresentations;
+    private List<String> m_rowIDs;
+    private int m_serverPort;
 
-    private static final String ROW_REP = "rowRepresentation";
+    private static final String SERVERPORT = "server_port";
+    private static final String ROWIDS = "row_ids";
 
     /**
      * Serialization constructor do not use!
@@ -83,13 +84,16 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
     }
 
     /**
-     * @param rowRepresentations
-     *            the representations for the rows.
+     * @param rowIDs
+     *            the rows ids.
+     * @param serverPort
+     *            the server port
      */
-    public ActiveLearnJsLoopEndViewRepresentation(
-            final Map<String, String> rowRepresentations) {
+    public ActiveLearnJsLoopEndViewRepresentation(final List<String> rowIDs,
+            final int serverPort) {
         super();
-        m_rowRepresentations = rowRepresentations;
+        m_rowIDs = rowIDs;
+        m_serverPort = serverPort;
     }
 
     /**
@@ -97,8 +101,8 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
      */
     @Override
     public void saveToNodeSettings(final NodeSettingsWO settings) {
-        JSViewUtils.saveMap(settings.addNodeSettings(ROW_REP),
-                m_rowRepresentations);
+        JSViewUtils.saveList(settings.addNodeSettings(ROWIDS), m_rowIDs);
+        settings.addInt(SERVERPORT, m_serverPort);
     }
 
     /**
@@ -107,24 +111,79 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
     @Override
     public void loadFromNodeSettings(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-        m_rowRepresentations = JSViewUtils
-                .loadMap(settings.getNodeSettings(ROW_REP));
+        m_rowIDs = JSViewUtils.loadList(settings.getNodeSettings(ROWIDS));
+        m_serverPort = settings.getInt(SERVERPORT);
+
     }
 
     /**
      * @return the m_rowRepresentations
      */
-    public Map<String, String> getRowRepresentation() {
-        return m_rowRepresentations;
+    public List<String> getRowIDs() {
+        return m_rowIDs;
     }
 
     /**
-     * @param rowRepresentation
-     *            the row Representations to set
+     * @return the m_serverPort
      */
-    public void setRowRepresentations(
-            final Map<String, String> rowRepresentation) {
-        m_rowRepresentations = rowRepresentation;
+    public int getServerPort() {
+        return m_serverPort;
     }
 
+    /**
+     * @param serverPort
+     *            the m_serverPort to set
+     */
+    public void setServerPort(final int serverPort) {
+        m_serverPort = serverPort;
+    }
+
+    /**
+     * @param rowIDs
+     *            the row Representations to set
+     */
+    public void setRowIDs(final List<String> rowIDs) {
+        m_rowIDs = rowIDs;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((m_rowIDs == null) ? 0 : m_rowIDs.hashCode());
+        result = prime * result + m_serverPort;
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ActiveLearnJsLoopEndViewRepresentation other = (ActiveLearnJsLoopEndViewRepresentation) obj;
+        if (m_rowIDs == null) {
+            if (other.m_rowIDs != null) {
+                return false;
+            }
+        } else if (!m_rowIDs.equals(other.m_rowIDs)) {
+            return false;
+        }
+        if (m_serverPort != other.m_serverPort) {
+            return false;
+        }
+        return true;
+    }
 }
