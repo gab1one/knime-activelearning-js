@@ -85,8 +85,6 @@ public class ActiveLearnJsLoopEndNodeModel extends
         AbstractWizardNodeModel<ActiveLearnJsLoopEndViewRepresentation, ActiveLearnJsLoopViewValue>
         implements ActiveLearnLoopEnd {
 
-    private final SettingsModelString m_classColModel = ActiveLearnJsLoopEndSettingsModels
-            .createClassColumnModel();
     private final SettingsModelString m_repColModel = ActiveLearnJsLoopEndSettingsModels
             .createRepColumnModel();
     private final SettingsModelInteger m_serverPortModel = ActiveLearnJsLoopEndSettingsModels
@@ -97,7 +95,6 @@ public class ActiveLearnJsLoopEndNodeModel extends
     private static final int LEARNING_DATA = 0;
     private static final int PASSTHROUGH_PORT = 1;
 
-    // private int m_classColIdx;
     private int m_repColIdx;
     private int m_previousIteration = -1;
     private Map<RowKey, String> m_newLabeledRows;
@@ -122,9 +119,6 @@ public class ActiveLearnJsLoopEndNodeModel extends
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
             throws InvalidSettingsException {
 
-        // m_classColIdx = NodeUtils.autoColumnSelection(inSpecs[LEARNING_DATA],
-        // m_classColModel, StringValue.class, this.getClass());
-
         m_repColIdx = NodeUtils.autoColumnSelection(inSpecs[LEARNING_DATA],
                 m_repColModel, DataValue.class, this.getClass());
 
@@ -140,6 +134,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
 
         final int currentIteration = getAvailableFlowVariables()
                 .get(ActiveLearnLoopUtils.AL_STEP).getIntValue();
+
         // user pressed the apply button
         if (currentIteration == m_previousIteration) {
             synchronized (getLock()) {
@@ -208,8 +203,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
      */
     protected List<SettingsModel> collectSettingsModels() {
         if (m_settingsModels == null) {
-            m_settingsModels = new ArrayList<SettingsModel>(4);
-            m_settingsModels.add(m_classColModel);
+            m_settingsModels = new ArrayList<SettingsModel>(2);
             m_settingsModels.add(m_repColModel);
             m_settingsModels.add(m_serverPortModel);
         }
@@ -269,7 +263,6 @@ public class ActiveLearnJsLoopEndNodeModel extends
     @Override
     protected void useCurrentValueAsDefault() {
         // TODO Auto-generated method stub
-
     }
 
     /**

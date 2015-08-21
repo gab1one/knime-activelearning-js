@@ -114,11 +114,6 @@ public class ActiveLearnJsLoopEndNodeFactory
                                 .createRepColumnModel(),
                         "Representative Column", 0, StringValue.class));
 
-                addDialogComponent(new DialogComponentColumnNameSelection(
-                        ActiveLearnJsLoopEndSettingsModels
-                                .createClassColumnModel(),
-                        "Class  Column", 0, StringValue.class));
-
                 addDialogComponent(new DialogComponentNumber(
                         ActiveLearnJsLoopEndSettingsModels
                                 .createServerPortModel(),

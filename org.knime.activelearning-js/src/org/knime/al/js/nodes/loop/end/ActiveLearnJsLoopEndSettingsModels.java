@@ -72,13 +72,6 @@ public final class ActiveLearnJsLoopEndSettingsModels {
     }
 
     /**
-     * @return Model to store the name of the class column
-     */
-    protected static SettingsModelString createClassColumnModel() {
-        return new SettingsModelString("class_column", "");
-    }
-
-    /**
      * * @return Model to store the port of the File Server
      */
     protected static SettingsModelInteger createServerPortModel() {
