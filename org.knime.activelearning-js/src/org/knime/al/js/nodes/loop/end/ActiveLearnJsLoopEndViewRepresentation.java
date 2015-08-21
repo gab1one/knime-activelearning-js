@@ -71,11 +71,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
 
-    private List<String> m_rowIDs;
-    private int m_serverPort;
-
     private static final String SERVERPORT = "server_port";
     private static final String ROWIDS = "row_ids";
+    private static final String FORMAT = "format";
+
+    private List<String> m_rowIDs;
+    private int m_serverPort;
+    private String m_format;
 
     /**
      * Serialization constructor do not use!
@@ -88,12 +90,15 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
      *            the rows ids.
      * @param serverPort
      *            the server port
+     * @param format
+     *            the format of the representation
      */
     public ActiveLearnJsLoopEndViewRepresentation(final List<String> rowIDs,
-            final int serverPort) {
+            final int serverPort, final String format) {
         super();
         m_rowIDs = rowIDs;
         m_serverPort = serverPort;
+        m_format = format;
     }
 
     /**
@@ -103,6 +108,7 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
     public void saveToNodeSettings(final NodeSettingsWO settings) {
         JSViewUtils.saveList(settings.addNodeSettings(ROWIDS), m_rowIDs);
         settings.addInt(SERVERPORT, m_serverPort);
+        settings.addString(m_format, FORMAT);
     }
 
     /**
@@ -113,7 +119,15 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
             throws InvalidSettingsException {
         m_rowIDs = JSViewUtils.loadList(settings.getNodeSettings(ROWIDS));
         m_serverPort = settings.getInt(SERVERPORT);
+        m_format = settings.getString(FORMAT);
+    }
 
+    public String getFormat() {
+        return m_format;
+    }
+
+    public void setFormat(final String format) {
+        m_format = format;
     }
 
     /**
@@ -154,6 +168,8 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
         final int prime = 31;
         int result = 1;
         result = prime * result
+                + ((m_format == null) ? 0 : m_format.hashCode());
+        result = prime * result
                 + ((m_rowIDs == null) ? 0 : m_rowIDs.hashCode());
         result = prime * result + m_serverPort;
         return result;
@@ -174,6 +190,13 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
             return false;
         }
         final ActiveLearnJsLoopEndViewRepresentation other = (ActiveLearnJsLoopEndViewRepresentation) obj;
+        if (m_format == null) {
+            if (other.m_format != null) {
+                return false;
+            }
+        } else if (!m_format.equals(other.m_format)) {
+            return false;
+        }
         if (m_rowIDs == null) {
             if (other.m_rowIDs != null) {
                 return false;

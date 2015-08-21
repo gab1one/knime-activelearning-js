@@ -101,6 +101,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
 
     private List<SettingsModel> m_settingsModels;
     private Map<String, DataCell> m_repMap;
+    private final String m_format = "PNG"; // FIXME: get from cell itself
 
     /**
     *
@@ -168,7 +169,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
                 });
 
                 final ActiveLearnJsLoopEndViewRepresentation rep = new ActiveLearnJsLoopEndViewRepresentation(
-                        rowIDs, m_serverPortModel.getIntValue());
+                        rowIDs, m_serverPortModel.getIntValue(), m_format );
                 setViewRepresentation(rep);
 
                 final ActiveLearnJsLoopViewValue viewVal = new ActiveLearnJsLoopViewValue(

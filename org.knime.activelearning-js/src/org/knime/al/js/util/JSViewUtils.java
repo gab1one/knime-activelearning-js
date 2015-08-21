@@ -157,7 +157,7 @@ public final class JSViewUtils {
         final int numSettings = settings.getInt(NUM_SETTINGS);
         final List<String> list = new ArrayList<>(numSettings);
         for (int i = 0; i < numSettings; i++) {
-            list.add(settings.getString(KEY));
+            list.add(settings.getString(KEY + i));
         }
         return list;
     }

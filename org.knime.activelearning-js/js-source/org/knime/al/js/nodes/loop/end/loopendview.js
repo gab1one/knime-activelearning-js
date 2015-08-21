@@ -53,30 +53,31 @@ knime_al_loopend = function() {
 	var _representation = null;
 	var _value = null;
 	var _port = 8042;
-	var _host = "localhost";
+	var _host = "http://localhost";
 
 	var minWidth = 400;
 	var minHeight = 300;
 	var defaultFont = "sans-serif";
 	var defaultFontSize = 12;
 
-
 	view.name = "knime_al_loopend";
 
 	view.init = function(representation, value) {
 		// check if data is avaiable
-		if ((!representation.keyedDataset) || representation.keyedDataset.rows.length < 1) {
+		if ((!representation.rowIDs) || representation.rowIDs.length < 1) {
 			d3.select("body").text("Error: No data available");
 			return;
 		}
 
 		_representation = representation;
+		_rows = representation.rowIDs;
 		_value = value;
-		_port = _representation.port;
+		_port = _representation.serverPort;
+
 
 		var body = document.getElementsByTagName("body")[0];
-		var width = representation.maxWidth;
-		var height = representation.maxHeight;
+		// var width = representation.maxWidth;
+		// var height = representation.maxHeight;
 		var div = document.createElement("div");
 		div.setAttribute("class", "quickformcontainer");
 		body.appendChild(div);
@@ -90,26 +91,77 @@ knime_al_loopend = function() {
 			div.setAttribute("title", representation.description);
 		}
 
-		var element = null;
+
 		if (representation.format == "PNG") {
-			var img = document.createElement("img");
-			img.setAttribute("src", _representation.host + ":" +
-					_representation.port + "/" );
-			div.appendChild(img);
-			if (width >= 0) {
-				img.style.maxWidth = width + "px";
-			}
-			if (height >= 0) {
-				img.style.maxHeight = height + "px";
+			for (var i = 0; i < _rows.length; i++) {
+				var img = document.createElement("img");
+				img.setAttribute("src", _host + ":" + _port + "/" + _rows[i]);
+				div.appendChild(img);
+				// if (width >= 0) {
+				// img.style.maxWidth = 300 + "px";
+				// // }
+				// // if (height >= 0) {
+				//				img.style.maxHeight = 400 + "px";
+				// }
 			}
 		} else {
-			var errorText = "Image format not supported: " + representation.imageFormat;
+			var errorText = "Image format not supported: " +
+				representation.imageFormat;
 			div.appendChild(document.createTextNode(errorText));
 		}
 
+		// Class Selection
+		var j, label_div, label_select, label_opt;
+		// Create the container <div>
+		label_div = document.createElement('div');
+		label_div.setAttribute("class", "quickformcontainer");
+		body.appendChild(label_div);
+
+		// Create the <select>
+		label_select = document.createElement('select');
+
+		// Give the <select> some attributes
+		label_select.name = 'name_of_select';
+		label_select.id = 'id_of_select';
+		label_select.className = 'class_of_select';
+
+		// Define something to do onChange
+		label_select.onchange = function () {
+		    // Do whatever you want to do when the select changes
+		    alert('You selected '+this.selectedIndex);
+		};
+
+		// Add some <option>s
+		for (j = 0; j < _value.classLabels.length; j++) {
+		    label_opt = document.createElement('option');
+		    label_opt.value = _value.classLabels[j];
+		    label_opt.innerHTML = _value.classLabels[j];
+		    label_select.appendChild(label_opt);
+		}
+
+		// Add the <div> to the DOM, then add the <select> to the <div>
+		// document.getElementById('container_for_select_container').appendChild(label_div);
+		label_div.appendChild(label_select);
+
+
+		var label_input = document.createElement("input");
+		label_input.setAttribute("type", "text");
+		label_input.setAttribute("name", "Class Label");
+
+		label_div.appendChild(label_input);
+
+		var add_btn = document.createElement("button");
+		add_btn.innerHTML = "Add Class Label";
+		add_btn.onclick="addClass();"
+		label_div.appendChild(add_btn);
+
+		var addClass = function(){
+			var nclass = label_input.value;
+		};
+
+
 		resizeParent();
 	};
-
 
 	view.validate = function() {
 		return true;
@@ -123,5 +175,5 @@ knime_al_loopend = function() {
 	};
 
 	return view;
-	
+
 }();
