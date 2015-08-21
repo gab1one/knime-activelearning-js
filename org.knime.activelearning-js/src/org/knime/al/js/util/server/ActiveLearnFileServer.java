@@ -78,10 +78,10 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
  *
  * @author gabriel
  */
-public class ALFileServer extends NanoHTTPD {
+public class ActiveLearnFileServer extends NanoHTTPD {
 
     private final NodeLogger m_logger = NodeLogger
-            .getLogger(ALFileServer.class);
+            .getLogger(ActiveLearnFileServer.class);
 
     private static final String PNG = "image/png";
 
@@ -97,7 +97,7 @@ public class ALFileServer extends NanoHTTPD {
      * @param spec
      *            the spec of the column the cells are from
      */
-    public ALFileServer(final int port, final Map<String, DataCell> dataCells,
+    public ActiveLearnFileServer(final int port, final Map<String, DataCell> dataCells,
             final DataColumnSpec spec) {
         super(port);
 
