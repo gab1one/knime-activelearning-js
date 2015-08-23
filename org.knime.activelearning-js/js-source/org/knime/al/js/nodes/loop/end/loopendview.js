@@ -170,9 +170,9 @@ knime_al_loopend = function() {
 	view.setValidationErrorMessage = function(message) {
 	};
 
-	view.value = function() {
+	view.getComponentValue = function(){
 		return _value;
-	};
+	}
 
 	return view;
 
