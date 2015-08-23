@@ -52,13 +52,10 @@ knime_al_loopend = function() {
 	view = {};
 	var _representation = null;
 	var _value = null;
-	var _port = 8042;
 	var _host = "http://localhost";
 
-	var minWidth = 400;
-	var minHeight = 300;
-	var defaultFont = "sans-serif";
-	var defaultFontSize = 12;
+	var _label_select = null;
+	var _rows = null;
 
 	view.name = "knime_al_loopend";
 
@@ -72,11 +69,9 @@ knime_al_loopend = function() {
 		_representation = representation;
 		_rows = representation.rowIDs;
 		_value = value;
-		_port = _representation.serverPort;
+		var port = _representation.serverPort;
 
 		var body = document.getElementsByTagName("body")[0];
-		// var width = representation.maxWidth;
-		// var height = representation.maxHeight;
 		var div = document.createElement("div");
 		div.setAttribute("class", "quickformcontainer");
 		body.appendChild(div);
@@ -93,59 +88,52 @@ knime_al_loopend = function() {
 		if (representation.format == "PNG") {
 			for (var i = 0; i < _rows.length; i++) {
 				var img = document.createElement("img");
-				img.setAttribute("src", _host + ":" + _port + "/" + _rows[i]);
+				img.setAttribute("src", _host + ":" + port + "/" + _rows[i]);
 				div.appendChild(img);
 				// if (width >= 0) {
-				// img.style.maxWidth = 300 + "px";
+				img.style.maxWidth = 300 + "px";
 				// // }
 				// // if (height >= 0) {
-				// img.style.maxHeight = 400 + "px";
+				img.style.maxHeight = 400 + "px";
 				// }
 			}
 		} else {
 			var errorText = "Image format not supported: " +
-				representation.imageFormat;
+					 representation.imageFormat;
 			div.appendChild(document.createTextNode(errorText));
 		}
 
 		// Class Selection
-		var j, label_div, label_select, label_opt;
+		var j, label_div, label_opt;
 		// Create the container <div>
 		label_div = document.createElement('div');
 		label_div.setAttribute("class", "quickformcontainer");
 		body.appendChild(label_div);
 
-		// Create the <select>
-		label_select = document.createElement('select');
+		// Create the class labes <select>
+		_label_select = document.createElement('select');
 
 		// Give the <select> some attributes
-		label_select.name = 'name_of_select';
-		label_select.id = 'id_of_select';
-		label_select.className = 'class_of_select';
+		_label_select.name = 'label select';
+		_label_select.id = 'label_select_id';
+		_label_select.className = 'label_select_class';
 
-		// Define something to do onChange
-		label_select.onchange = function() {
-			// Do whatever you want to do when the select changes
-			_value.rowLabels.put(_rows[0], label_select);
-
-		};
-
-		// Add some <option>s
+		// Add the previously defined class labels as <option>s
 		for (j = 0; j < _value.classLabels.length; j++) {
 			label_opt = document.createElement('option');
 			label_opt.value = _value.classLabels[j];
 			label_opt.innerHTML = _value.classLabels[j];
-			label_select.appendChild(label_opt);
+			_label_select.appendChild(label_opt);
 		}
+		label_div.appendChild(_label_select);
 
-		label_div.appendChild(label_select);
-
+		// class label input
 		var label_input = document.createElement("input");
 		label_input.setAttribute("type", "text");
 		label_input.setAttribute("name", "Class Label");
-
 		label_div.appendChild(label_input);
 
+		// add class button
 		var add_btn = document.createElement("button");
 		add_btn.innerHTML = "Add Class Label";
 
@@ -156,7 +144,8 @@ knime_al_loopend = function() {
 			label_opt = document.createElement("option");
 			label_opt.value = nclass;
 			label_opt.innerHTML = nclass;
-			label_select.appendChild(label_opt);
+			_label_select.appendChild(label_opt);
+			_label_select.value = nclass; // select the new class directly
 		};
 
 		label_div.appendChild(add_btn);
@@ -164,15 +153,16 @@ knime_al_loopend = function() {
 	};
 
 	view.validate = function() {
+		_value.rowLabels[_rows[0]] = _label_select.selectedOptions[0].innerHTML;
 		return true;
 	};
 
 	view.setValidationErrorMessage = function(message) {
 	};
 
-	view.getComponentValue = function(){
+	view.getComponentValue = function() {
 		return _value;
-	}
+	};
 
 	return view;
 
