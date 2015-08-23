@@ -145,7 +145,7 @@ knime_al_loopend = function() {
 			label_opt.value = nclass;
 			label_opt.innerHTML = nclass;
 			_label_select.appendChild(label_opt);
-			_label_select.value = nclass; // select the new class directly
+			$("#label_select_id").val(nclass);
 		};
 
 		label_div.appendChild(add_btn);
@@ -153,7 +153,7 @@ knime_al_loopend = function() {
 	};
 
 	view.validate = function() {
-		_value.rowLabels[_rows[0]] = _label_select.selectedOptions[0].innerHTML;
+		_value.rowLabels[_rows[0]] = $("#label_select_id").val();
 		return true;
 	};
 
