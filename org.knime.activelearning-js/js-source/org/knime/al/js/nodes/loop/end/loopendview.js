@@ -127,17 +127,23 @@ knime_al_loopend = function() {
 		}
 		label_div.appendChild(_label_select);
 
+		var labeling_form = document.createElement("form");
+		labeling_form.id = "lform";
+		label_div.appendChild(labeling_form);
+
 		// class label input
 		var label_input = document.createElement("input");
 		label_input.setAttribute("type", "text");
 		label_input.setAttribute("name", "Class Label");
-		label_div.appendChild(label_input);
+		labeling_form.appendChild(label_input);
 
 		// add class button
-		var add_btn = document.createElement("button");
-		add_btn.innerHTML = "Add Class Label";
+		var add_btn = document.createElement("input");
+		add_btn.setAttribute("type", "submit");
+		add_btn.setAttribute("value", "Add Class Label");
 
-		add_btn.onclick = function() {
+		labeling_form.submit = function(e) {
+			e.preventDefault();
 			var nclass = label_input.value;
 			label_input.value = "";
 
@@ -148,7 +154,7 @@ knime_al_loopend = function() {
 			$("#label_select_id").val(nclass);
 		};
 
-		label_div.appendChild(add_btn);
+		labeling_form.appendChild(add_btn);
 		resizeParent();
 	};
 
