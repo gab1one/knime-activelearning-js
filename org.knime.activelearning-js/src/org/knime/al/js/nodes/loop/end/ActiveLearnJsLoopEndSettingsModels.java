@@ -51,6 +51,7 @@
 package org.knime.al.js.nodes.loop.end;
 
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
+import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
@@ -76,6 +77,14 @@ public final class ActiveLearnJsLoopEndSettingsModels {
      */
     protected static SettingsModelInteger createServerPortModel() {
         return new SettingsModelInteger("server_port", 8042);
+    }
+
+    /**
+     * * @return Model to store the host address of the Server
+     */
+    protected static SettingsModelOptionalString createHostAddressModel() {
+        return new SettingsModelOptionalString("host_address",
+                "http://localhost", false);
     }
 
 }

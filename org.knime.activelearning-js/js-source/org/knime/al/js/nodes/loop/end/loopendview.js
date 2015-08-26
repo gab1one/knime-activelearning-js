@@ -52,7 +52,6 @@ knime_al_loopend = function() {
 	view = {};
 	var _representation = null;
 	var _value = null;
-	var _host = "http://localhost";
 
 	var _label_select = null;
 	var _rows = null;
@@ -70,6 +69,7 @@ knime_al_loopend = function() {
 		_rows = representation.rowIDs;
 		_value = value;
 		var port = _representation.serverPort;
+		var host = _representation.hostAddress;
 
 		var body = document.getElementsByTagName("body")[0];
 		var div = document.createElement("div");
@@ -88,7 +88,7 @@ knime_al_loopend = function() {
 		if (representation.format == "PNG") {
 			for (var i = 0; i < _rows.length; i++) {
 				var img = document.createElement("img");
-				img.setAttribute("src", _host + ":" + port + "/" + _rows[i]);
+				img.setAttribute("src", host + ":" + port + "/" + _rows[i]);
 				div.appendChild(img);
 				// if (width >= 0) {
 				img.style.maxWidth = 300 + "px";
@@ -98,8 +98,8 @@ knime_al_loopend = function() {
 				// }
 			}
 		} else {
-			var errorText = "Image format not supported: " +
-					 representation.imageFormat;
+			var errorText = "Image format not supported: "
+					+ representation.imageFormat;
 			div.appendChild(document.createTextNode(errorText));
 		}
 
@@ -141,20 +141,24 @@ knime_al_loopend = function() {
 		var add_btn = document.createElement("input");
 		add_btn.setAttribute("type", "submit");
 		add_btn.setAttribute("value", "Add Class Label");
+		labeling_form.appendChild(add_btn);
 
-		labeling_form.submit = function(e) {
+		labeling_form.onsubmit = function(e) {
 			e.preventDefault();
 			var nclass = label_input.value;
 			label_input.value = "";
 
-			label_opt = document.createElement("option");
-			label_opt.value = nclass;
-			label_opt.innerHTML = nclass;
-			_label_select.appendChild(label_opt);
+			// don't add twice
+			var exists = 0 != $("#label_select_id option[value=" + nclass + "]").length;
+			if (!exists) {
+				label_opt = document.createElement("option");
+				label_opt.value = nclass;
+				label_opt.innerHTML = nclass;
+				_label_select.appendChild(label_opt);
+			}
 			$("#label_select_id").val(nclass);
 		};
 
-		labeling_form.appendChild(add_btn);
 		resizeParent();
 	};
 

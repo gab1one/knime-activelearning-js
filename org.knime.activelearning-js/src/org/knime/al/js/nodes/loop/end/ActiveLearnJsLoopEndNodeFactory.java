@@ -57,6 +57,7 @@ import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
+import org.knime.core.node.defaultnodesettings.DialogComponentOptionalString;
 import org.knime.core.node.wizard.WizardNodeFactoryExtension;
 
 /**
@@ -118,6 +119,12 @@ public class ActiveLearnJsLoopEndNodeFactory
                         ActiveLearnJsLoopEndSettingsModels
                                 .createServerPortModel(),
                         "Fileserver Port", 1));
+
+                addDialogComponent(
+                        new DialogComponentOptionalString(
+                                ActiveLearnJsLoopEndSettingsModels
+                                        .createHostAddressModel(),
+                                "Host Adress", 30));
             }
         };
     }

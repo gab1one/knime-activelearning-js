@@ -72,12 +72,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
 
     private static final String SERVERPORT = "server_port";
+    private static final String HOST_ADDRESS = "host_address";
     private static final String ROWIDS = "row_ids";
     private static final String FORMAT = "format";
 
     private List<String> m_rowIDs;
     private int m_serverPort;
     private String m_format;
+
+    private String m_hostAddress;
 
     /**
      * Serialization constructor do not use!
@@ -92,12 +95,16 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
      *            the server port
      * @param format
      *            the format of the representation
+     * @param hostAdress
+     *            the address of the server the workflow is running on
      */
     public ActiveLearnJsLoopEndViewRepresentation(final List<String> rowIDs,
-            final int serverPort, final String format) {
+            final String hostAdress, final int serverPort,
+            final String format) {
         super();
         m_rowIDs = rowIDs;
         m_serverPort = serverPort;
+        m_hostAddress = hostAdress;
         m_format = format;
     }
 
@@ -108,7 +115,8 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
     public void saveToNodeSettings(final NodeSettingsWO settings) {
         JSViewUtils.saveList(settings.addNodeSettings(ROWIDS), m_rowIDs);
         settings.addInt(SERVERPORT, m_serverPort);
-        settings.addString(m_format, FORMAT);
+        settings.addString(FORMAT, m_format);
+        settings.addString(HOST_ADDRESS, m_hostAddress);
     }
 
     /**
@@ -119,6 +127,7 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
             throws InvalidSettingsException {
         m_rowIDs = JSViewUtils.loadList(settings.getNodeSettings(ROWIDS));
         m_serverPort = settings.getInt(SERVERPORT);
+        m_hostAddress = settings.getString(HOST_ADDRESS);
         m_format = settings.getString(FORMAT);
     }
 
@@ -138,7 +147,7 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
     }
 
     /**
-     * @return the m_serverPort
+     * @return the serverPort
      */
     public int getServerPort() {
         return m_serverPort;
@@ -146,10 +155,25 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
 
     /**
      * @param serverPort
-     *            the m_serverPort to set
+     *            the serverPort to set
      */
     public void setServerPort(final int serverPort) {
         m_serverPort = serverPort;
+    }
+
+    /**
+     * @return the m_hostAdress
+     */
+    public String getHostAddress() {
+        return m_hostAddress;
+    }
+
+    /**
+     * @param hostAddress
+     *            the m_hostAdress to set
+     */
+    public void setHostAddress(final String hostAddress) {
+        m_hostAddress = hostAddress;
     }
 
     /**

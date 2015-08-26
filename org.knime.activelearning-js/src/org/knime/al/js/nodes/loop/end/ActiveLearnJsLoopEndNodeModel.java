@@ -67,6 +67,7 @@ import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -85,10 +86,15 @@ public class ActiveLearnJsLoopEndNodeModel extends
         AbstractWizardNodeModel<ActiveLearnJsLoopEndViewRepresentation, ActiveLearnJsLoopViewValue>
         implements ActiveLearnLoopEnd {
 
+    private static final NodeLogger LOGGER = NodeLogger
+            .getLogger(ActiveLearnJsLoopEndNodeModel.class);
+
     private final SettingsModelString m_repColModel = ActiveLearnJsLoopEndSettingsModels
             .createRepColumnModel();
     private final SettingsModelInteger m_serverPortModel = ActiveLearnJsLoopEndSettingsModels
             .createServerPortModel();
+    private final SettingsModelString m_hostAdress = ActiveLearnJsLoopEndSettingsModels
+            .createHostAddressModel();
 
     private ActiveLearnFileServer m_fileServer;
 
@@ -114,7 +120,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
     }
 
     /**
-     * {@inheritDoc} Node routes through the second inport.
+     * {@inheritDoc} Node routes through the second input port.
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
@@ -172,7 +178,8 @@ public class ActiveLearnJsLoopEndNodeModel extends
                 });
 
                 final ActiveLearnJsLoopEndViewRepresentation rep = new ActiveLearnJsLoopEndViewRepresentation(
-                        rowIDs, m_serverPortModel.getIntValue(), m_format);
+                        rowIDs, m_hostAdress.getStringValue(),
+                        m_serverPortModel.getIntValue(), m_format);
                 setViewRepresentation(rep);
 
                 final ActiveLearnJsLoopViewValue viewVal = new ActiveLearnJsLoopViewValue(
@@ -181,7 +188,6 @@ public class ActiveLearnJsLoopEndNodeModel extends
                         viewmap);
                 setViewValue(viewVal);
 
-                // FIXME: Open close with dialog?
                 m_fileServer = new ActiveLearnFileServer(
                         m_serverPortModel.getIntValue(), m_repMap,
                         learningData.getSpec().getColumnSpec(m_repColIdx));
@@ -265,7 +271,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
      */
     @Override
     protected void useCurrentValueAsDefault() {
-        // TODO Auto-generated method stub
+        LOGGER.warn("This option is not enabled!");
     }
 
     /**
