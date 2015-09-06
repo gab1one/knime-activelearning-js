@@ -55,6 +55,9 @@ knime_al_loopend = function() {
 
 	var _label_select = null;
 	var _rows = null;
+	var _selectedRow = 0;
+	var _port = "";
+	var _host = "";
 
 	view.name = "knime_al_loopend";
 
@@ -68,64 +71,54 @@ knime_al_loopend = function() {
 		_representation = representation;
 		_rows = representation.rowIDs;
 		_value = value;
-		var port = _representation.serverPort;
-		var host = _representation.hostAddress;
+		_port = _representation.serverPort;
+		_host = _representation.hostAddress;
 
 		var body = document.getElementsByTagName("body")[0];
-		var div = document.createElement("div");
-		div.setAttribute("class", "quickformcontainer");
-		body.appendChild(div);
-		if (representation.label) {
-			var label = document.createElement("div");
-			label.setAttribute("class", "label");
-			label.appendChild(document.createTextNode(representation.label));
-			div.appendChild(label);
-		}
-		if (representation.description) {
-			div.setAttribute("title", representation.description);
-		}
 
-		if (representation.format == "PNG") {
-			for (var i = 0; i < _rows.length; i++) {
-				var img = document.createElement("img");
-				img.setAttribute("src", host + ":" + port + "/" + _rows[i]);
-				div.appendChild(img);
-				// if (width >= 0) {
-				img.style.maxWidth = 300 + "px";
-				// // }
-				// // if (height >= 0) {
-				img.style.maxHeight = 400 + "px";
-				// }
-			}
-		} else {
-			var errorText = "Image format not supported: "
-					+ representation.imageFormat;
-			div.appendChild(document.createTextNode(errorText));
-		}
+		// ImgView
+		var imgDiv = document.createElement("div");
+		imgDiv.class = "quickformcontainer";
+		imgDiv.id = "imgDiv";
+		body.appendChild(imgDiv);
 
-		// Class Selection
-		var j, label_div, label_opt;
-		// Create the container <div>
-		label_div = document.createElement('div');
-		label_div.setAttribute("class", "quickformcontainer");
+		// append initial image
+		imgDiv.appendChild(createImg(_rows[0]));
+		imgDiv.refreshImage = function() {
+			$("#internalImg").remove();
+			imgDiv.appendChild(createImg(_rows[_selectedRow]));
+		};
+
+		// Class Selection container
+		var label_div = document.createElement('div');
+		label_div.id = "label_div";
+		label_div.class = "quickformcontainer";
 		body.appendChild(label_div);
 
-		// Create the class labes <select>
+		// class labels select
 		_label_select = document.createElement('select');
 
 		// Give the <select> some attributes
-		_label_select.name = 'label select';
-		_label_select.id = 'label_select_id';
-		_label_select.className = 'label_select_class';
+		_label_select.name = "label select";
+		_label_select.id = "label_select";
 
 		// Add the previously defined class labels as <option>s
-		for (j = 0; j < _value.classLabels.length; j++) {
-			label_opt = document.createElement('option');
+		for (var j = 0; j < _value.classLabels.length; j++) {
+			var label_opt = document.createElement('option');
 			label_opt.value = _value.classLabels[j];
 			label_opt.innerHTML = _value.classLabels[j];
 			_label_select.appendChild(label_opt);
 		}
 		label_div.appendChild(_label_select);
+
+		label_div.refreshLabeling = function() {
+			var currentLabel = _value.rowLabels[_rows[_selectedRow]];
+			var exists = 0 !== $("#label_select option[value=" + currentLabel
+					+ "]").length;
+			if (exists) {
+				$("#label_select").val(currentLabel);
+			}
+		};
 
 		var labeling_form = document.createElement("form");
 		labeling_form.id = "lform";
@@ -133,37 +126,102 @@ knime_al_loopend = function() {
 
 		// class label input
 		var label_input = document.createElement("input");
-		label_input.setAttribute("type", "text");
-		label_input.setAttribute("name", "Class Label");
+		label_input.type = "text";
+		label_input.name = "Class Label";
 		labeling_form.appendChild(label_input);
 
 		// add class button
 		var add_btn = document.createElement("input");
-		add_btn.setAttribute("type", "submit");
-		add_btn.setAttribute("value", "Add Class Label");
+		add_btn.type = "submit";
+		add_btn.value = "Add Class Label";
 		labeling_form.appendChild(add_btn);
 
-		labeling_form.onsubmit = function(e) {
-			e.preventDefault();
+		labeling_form.onsubmit = function(event) {
+			event.preventDefault();
 			var nclass = label_input.value;
 			label_input.value = "";
 
 			// don't add twice
-			var exists = 0 != $("#label_select_id option[value=" + nclass + "]").length;
+			var exists = 0 !== $("#label_select option[value=" + nclass + "]").length;
 			if (!exists) {
 				label_opt = document.createElement("option");
 				label_opt.value = nclass;
 				label_opt.innerHTML = nclass;
 				_label_select.appendChild(label_opt);
 			}
-			$("#label_select_id").val(nclass);
+			$("#label_select").val(nclass);
 		};
+
+		// add forward and backwards buttons
+
+		var control = document.createElement("div");
+		var fwd_btn = document.createElement("button");
+		fwd_btn.value = "Next Row";
+		fwd_btn.innerHTML = "Next Row";
+		fwd_btn.id = "fwd_btn";
+
+		var back_btn = document.createElement("button");
+		back_btn.value = "Previous Row";
+		back_btn.innerHTML = "Previous Row";
+		back_btn.id = "back_btn";
+
+		control.appendChild(back_btn);
+		control.appendChild(fwd_btn);
+		body.appendChild(control);
+
+		// on click funktions
+		fwd_btn.onclick = function() {
+			// store the current class label
+			_value.rowLabels[_rows[_selectedRow]] = $("#label_select").val();
+			// wrap around
+			if (_selectedRow === _rows.length - 1) {
+				_selectedRow = 0;
+			} else {
+				_selectedRow = _selectedRow + 1;
+			}
+			// set label
+			label_div.refreshLabeling();
+			imgDiv.refreshImage();
+		};
+
+		// on click functions
+		back_btn.onclick = function() {
+			_value.rowLabels[_rows[_selectedRow]] = $("#label_select").val();
+			// wrap around
+			if (_selectedRow === 0) {
+				_selectedRow = _rows.length - 1;
+			} else {
+				_selectedRow = _selectedRow - 1;
+			}
+			label_div.refreshLabeling();
+			imgDiv.refreshImage();
+		};
+
+		// Function that creates the img div's
+		function createImg(rowID) {
+			var format = _representation.format;
+
+			if (format == "PNG") {
+				var img = document.createElement("img");
+				img.setAttribute("src", _host + ":" + _port + "/" + rowID);
+				img.setAttribute("id", "internalImg");
+
+				img.style.maxWidth = 300 + "px";
+				img.style.maxHeight = 400 + "px";
+
+				return img;
+			} else {
+				var errorText = "Image format not supported: " + format;
+				return document.createTextNode(errorText);
+			}
+		}
 
 		resizeParent();
 	};
 
 	view.validate = function() {
-		_value.rowLabels[_rows[0]] = $("#label_select_id").val();
+		// load from the select
+		_value.rowLabels[_rows[0]] = $("#label_select").val();
 		return true;
 	};
 
