@@ -14,8 +14,8 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="AL-Loop.svg"
-   inkscape:export-filename="/home/gabriel/git/knime-activelearning-js/org.knime.activelearning-js/src/org/knime/al/js/nodes/loop/end/AL-Loop.png"
+   sodipodi:docname="loop-end.svg"
+   inkscape:export-filename="/home/gabriel/git/knime-activelearning/org.knime.activelearning/src/org/knime/al/nodes/loop/end/loop-end.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -387,16 +387,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="17.125"
-     inkscape:cx="5.2198901"
-     inkscape:cy="8.3503823"
+     inkscape:zoom="12.109204"
+     inkscape:cx="8.3160114"
+     inkscape:cy="11.226944"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="734"
-     inkscape:window-height="430"
-     inkscape:window-x="534"
-     inkscape:window-y="244"
+     inkscape:window-width="739"
+     inkscape:window-height="478"
+     inkscape:window-x="327"
+     inkscape:window-y="434"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -419,39 +419,46 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-1036.3622)">
-    <rect
-       ry="2.4025976e-06"
-       rx="1.5787996e-06"
-       y="-15.615521"
-       x="-1051.9797"
-       height="15.155156"
-       width="1.6919377"
-       id="rect3089"
-       style="fill:#ff00ff;fill-opacity:0.94117647;stroke:#ff00ff;stroke-width:0.89515322"
-       transform="matrix(0,-1,-1,0,0,0)" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.22655928px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Send-5-0-7-1)"
-       d="m 2.7897501,1046.3947 c 1.7820534,2.054 3.8104425,2.7386 5.7298437,2.5657 1.9124052,-0.1723 3.7166242,-1.1957 5.0612192,-2.5637 0.01244,-0.013 0.02339,-0.026 0.03719,-0.038"
-       id="path5055-2-2"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cssc" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.22655928px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Send-5-0-7-1-4)"
-       d="m 14.100337,1040.2032 c -1.782054,-2.0541 -3.810442,-2.7386 -5.7298433,-2.5657 -1.9124052,0.1723 -3.7166243,1.1957 -5.0612188,2.5637 -0.01244,0.013 -0.023392,0.026 -0.037195,0.039"
-       id="path5055-2-2-0"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cssc" />
+    <ellipse
+       style="display:inline;fill:#b3b3b3;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path4388"
+       cx="7.8231983"
+       cy="1044.5105"
+       rx="6.6151509"
+       ry="6.8642125" />
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="3.6934307"
-       y="1045.968"
-       id="text4376"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan4378"
-         x="3.6934307"
-         y="1045.968"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.5px;font-family:monospace;-inkscape-font-specification:'monospace Bold'">JS</tspan></text>
+       transform="scale(1.0830143,0.92334887)"
+       sodipodi:linespacing="125%"
+       id="text4660"
+       y="1135.3795"
+       x="3.5012298"
+       style="font-style:normal;font-weight:normal;font-size:11.97992229px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:#808080;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       xml:space="preserve"><tspan
+         style="fill:#000000;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none"
+         y="1135.3795"
+         x="3.5012298"
+         id="tspan4662"
+         sodipodi:role="line">L</tspan></text>
+    <g
+       style="display:inline"
+       transform="matrix(1.3416814,0,0,1.4027113,-2.5944973,-419.4785)"
+       id="g4303">
+      <ellipse
+         style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.07782257;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path4296"
+         cx="7.5761061"
+         cy="1043.6111"
+         rx="5.1634321"
+         ry="5.0888343" />
+      <rect
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.45656502;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect4298"
+         width="2.0895407"
+         height="2.006959"
+         x="11.555408"
+         y="1042.6661"
+         rx="3.2989669e-06"
+         ry="4.8219199e-06" />
+    </g>
   </g>
 </svg>
