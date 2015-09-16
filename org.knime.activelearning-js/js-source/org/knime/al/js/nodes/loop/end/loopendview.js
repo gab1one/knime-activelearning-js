@@ -49,189 +49,235 @@
 
 knime_al_loopend = function() {
 
-	view = {};
-	var _representation = null;
-	var _value = null;
+    view = {};
 
-	var _label_select = null;
-	var _rows = null;
-	var _selectedRow = 0;
-	var _port = "";
-	var _host = "";
+    view.name = "knime_al_loopend";
 
-	view.name = "knime_al_loopend";
+    view.init = function(representation, value) {
+        // check if data is avaiable
+        if ((!representation.rowIDs) || representation.rowIDs.length < 1) {
+            d3.select("body").text("Error: No data available");
+            return;
+        }
 
-	view.init = function(representation, value) {
-		// check if data is avaiable
-		if ((!representation.rowIDs) || representation.rowIDs.length < 1) {
-			d3.select("body").text("Error: No data available");
-			return;
-		}
+        var _value = value;
 
-		_representation = representation;
-		_rows = representation.rowIDs;
-		_value = value;
-		_port = _representation.serverPort;
-		_host = _representation.hostAddress;
+        // for the multiple rows implementation
+        var _curRowIdx = 0;
+        var _rows = representation.rowIDs;
 
-		var body = document.getElementsByTagName("body")[0];
+        // for create Img
+        var _format = representation.format;
+        var _port = representation.serverPort;
+        var _host = representation.hostAddress;
 
-		// ImgView
-		var imgDiv = document.createElement("div");
-		imgDiv.class = "quickformcontainer";
-		imgDiv.id = "imgDiv";
-		body.appendChild(imgDiv);
+        // will be initialized by chachDom function
+        var $imgDiv = null;
+        var $labelSelect = null;
+        var $labelForm = null;
 
-		// append initial image
-		imgDiv.appendChild(createImg(_rows[0]));
-		imgDiv.refreshImage = function() {
-			$("#internalImg").remove();
-			imgDiv.appendChild(createImg(_rows[_selectedRow]));
-		};
+        // creates the DOM
+        this.createDOM = function() {
+            var body = document.getElementsByTagName("body")[0];
 
-		// Class Selection container
-		var label_div = document.createElement('div');
-		label_div.id = "label_div";
-		label_div.class = "quickformcontainer";
-		body.appendChild(label_div);
+            // ImgView
+            var imgDiv = document.createElement("div");
+            imgDiv.class = "quickformcontainer";
+            imgDiv.id = "imgDiv";
+            body.appendChild(imgDiv);
 
-		// class labels select
-		_label_select = document.createElement('select');
+            // Labelselection container
+            var label_div = document.createElement("div");
+            label_div.id = "label_div";
+            label_div.class = "quickformcontainer";
+            body.appendChild(label_div);
 
-		// Give the <select> some attributes
-		_label_select.name = "label select";
-		_label_select.id = "label_select";
+            // class labels select
+            var _label_select = document.createElement("select");
+            _label_select.name = "label select";
+            _label_select.id = "label_select";
+            label_div.appendChild(_label_select);
+            $labelSelect = $("#label_select");
 
-		// Add the previously defined class labels as <option>s
-		for (var j = 0; j < _value.classLabels.length; j++) {
-			var label_opt = document.createElement('option');
-			label_opt.value = _value.classLabels[j];
-			label_opt.innerHTML = _value.classLabels[j];
-			_label_select.appendChild(label_opt);
-		}
-		label_div.appendChild(_label_select);
+            // Add all previously defined class labels as <option>s
+            for (var j = 0; j < _value.classLabels.length; j++) {
+                this.addLabel(null, _value.classLabels[j]);
+            }
 
-		label_div.refreshLabeling = function() {
-			var currentLabel = _value.rowLabels[_rows[_selectedRow]];
-			var exists = 0 !== $("#label_select option[value=" + currentLabel
-					+ "]").length;
-			if (exists) {
-				$("#label_select").val(currentLabel);
-			}
-		};
+            var label_form = document.createElement("form");
+            label_form.id = "label_form";
+            label_div.appendChild(label_form);
 
-		var labeling_form = document.createElement("form");
-		labeling_form.id = "lform";
-		label_div.appendChild(labeling_form);
+            // class label input
+            var label_input = document.createElement("input");
+            label_input.id = "label_input";
+            label_input.type = "text";
+            label_input.name = "Class Label";
+            label_form.appendChild(label_input);
 
-		// class label input
-		var label_input = document.createElement("input");
-		label_input.type = "text";
-		label_input.name = "Class Label";
-		labeling_form.appendChild(label_input);
+            // add class button
+            var add_btn = document.createElement("input");
+            add_btn.type = "submit";
+            add_btn.value = "Add Class Label";
+            label_form.appendChild(add_btn);
 
-		// add class button
-		var add_btn = document.createElement("input");
-		add_btn.type = "submit";
-		add_btn.value = "Add Class Label";
-		labeling_form.appendChild(add_btn);
+            // add forward and backwards buttons
 
-		labeling_form.onsubmit = function(event) {
-			event.preventDefault();
-			var nclass = label_input.value;
-			label_input.value = "";
+            var control = document.createElement("div");
+            var fwd_btn = document.createElement("button");
+            fwd_btn.value = "Next Row";
+            fwd_btn.innerHTML = "Next Row";
+            fwd_btn.id = "fwd_btn";
 
-			// don't add twice
-			var exists = 0 !== $("#label_select option[value=" + nclass + "]").length;
-			if (!exists) {
-				label_opt = document.createElement("option");
-				label_opt.value = nclass;
-				label_opt.innerHTML = nclass;
-				_label_select.appendChild(label_opt);
-			}
-			$("#label_select").val(nclass);
-		};
+            var back_btn = document.createElement("button");
+            back_btn.value = "Previous Row";
+            back_btn.innerHTML = "Previous Row";
+            back_btn.id = "back_btn";
 
-		// add forward and backwards buttons
+            control.appendChild(back_btn);
+            control.appendChild(fwd_btn);
+            body.appendChild(control);
+        };
 
-		var control = document.createElement("div");
-		var fwd_btn = document.createElement("button");
-		fwd_btn.value = "Next Row";
-		fwd_btn.innerHTML = "Next Row";
-		fwd_btn.id = "fwd_btn";
+        // FUNCTIONS
 
-		var back_btn = document.createElement("button");
-		back_btn.value = "Previous Row";
-		back_btn.innerHTML = "Previous Row";
-		back_btn.id = "back_btn";
+        this.cacheDOM = function() {
+            $imgDiv = $("imgDiv");
+            // $labelSelect = $("#label_select");
+            $labelForm = $("#label_form");
+            $labelInput = $("#label_input");
+        };
 
-		control.appendChild(back_btn);
-		control.appendChild(fwd_btn);
-		body.appendChild(control);
+        // bind the event listeners
+        this.bindListeners = function() {
+            // on click funktions
+            fwd_btn.onclick = this.nextRow.bind(this);
+            back_btn.onclick = this.prevRow.bind(this);
+            label_form.onsubmit = this.addLabel.bind(this);
+        };
 
-		// on click funktions
-		fwd_btn.onclick = function() {
-			// store the current class label
-			_value.rowLabels[_rows[_selectedRow]] = $("#label_select").val();
-			// wrap around
-			if (_selectedRow === _rows.length - 1) {
-				_selectedRow = 0;
-			} else {
-				_selectedRow = _selectedRow + 1;
-			}
-			// set label
-			label_div.refreshLabeling();
-			imgDiv.refreshImage();
-		};
+        // getter for the value
+        this.getValue = function() {
+            return _value;
+        };
 
-		// on click functions
-		back_btn.onclick = function() {
-			_value.rowLabels[_rows[_selectedRow]] = $("#label_select").val();
-			// wrap around
-			if (_selectedRow === 0) {
-				_selectedRow = _rows.length - 1;
-			} else {
-				_selectedRow = _selectedRow - 1;
-			}
-			label_div.refreshLabeling();
-			imgDiv.refreshImage();
-		};
+        // sets the label of the current row to the currently selected value in
+        // the label select
+        this.setSelectedLabel = function() {
+            _value.rowLabels[_rows[_curRowIdx]] = $labelSelect.val();
+        };
 
-		// Function that creates the img div's
-		function createImg(rowID) {
-			var format = _representation.format;
+        // refreshes the view
+        this.refreshView = function() {
+            var selected_row = _rows[_curRowIdx];
 
-			if (format == "PNG") {
-				var img = document.createElement("img");
-				img.setAttribute("src", _host + ":" + _port + "/" + rowID);
-				img.setAttribute("id", "internalImg");
+            // refresh the image
+            $("#internalImg").remove();
+            imgDiv.appendChild(this.createImg(selected_row, _format));
 
-				img.style.maxWidth = 300 + "px";
-				img.style.maxHeight = 400 + "px";
+            // refresh the label
+            var currentLabel = _value.rowLabels[selected_row];
+            var exists = $labelSelect.find("#label-" + currentLabel).length;
+            if (exists) {
+                $labelSelect.val(currentLabel);
+            }
+        };
 
-				return img;
-			} else {
-				var errorText = "Image format not supported: " + format;
-				return document.createTextNode(errorText);
-			}
-		}
+        // add a new label and select it
+        this.addLabel = function(event, label) {
+            var _label = null;
 
-		resizeParent();
-	};
+            // called from the label onSubmit.
+            if (event) {
+                event.preventDefault();
+                _label = $labelInput.val();
+                $labelInput.val(""); // clear input box
+            } else {
+                _label = label;
+            }
+            if (_label.length === 0) {// don't add empty labels
+                return;
+            }
 
-	view.validate = function() {
-		// load from the select
-		_value.rowLabels[_rows[0]] = $("#label_select").val();
-		return true;
-	};
+            // don't add twice
+            var exists = 0 !== $("#label_select option[value=" + _label + "]").length;
+            if (!exists) {
+                var label_opt = document.createElement("option");
+                label_opt.value = _label;
+                label_opt.innerHTML = _label;
+                label_opt.class = "label_opt";
+                label_opt.id = "label-" + _label;
+                $labelSelect.append(label_opt);
+            }
+            $labelSelect.val(_label);
+        };
 
-	view.setValidationErrorMessage = function(message) {
-	};
+        // function to show the previous row
+        this.prevRow = function() {
+            this.setSelectedLabel();
 
-	view.getComponentValue = function() {
-		return _value;
-	};
+            // wrap around
+            if (_curRowIdx === 0) {
+                _curRowIdx = _rows.length - 1;
+            } else {
+                _curRowIdx = _curRowIdx - 1;
+            }
+            this.refreshView();
+        };
 
-	return view;
+        // function to show the next row
+        this.nextRow = function() {
+            this.setSelectedLabel();
+
+            // wrap around
+            if (_curRowIdx === _rows.length - 1) {
+                _curRowIdx = 0;
+            } else {
+                _curRowIdx = _curRowIdx + 1;
+            }
+            this.refreshView();
+        };
+
+        // function to create an image div
+        this.createImg = function(rowID, format) {
+
+            if (format == "PNG") {
+                var img = document.createElement("img");
+                img.setAttribute("src", _host + ":" + _port + "/" + rowID);
+                img.setAttribute("id", "internalImg");
+
+                img.style.maxWidth = 300 + "px";
+                img.style.maxHeight = 400 + "px";
+
+                return img;
+            } else {
+                var errorText = "Image format not supported: " + format;
+                return document.createTextNode(errorText);
+            }
+        };
+
+        this.createDOM();
+        this.cacheDOM();
+        this.bindListeners();
+        this.refreshView();
+
+        resizeParent();
+    };
+
+    view.validate = function() {
+
+        // ensure the last label is set.
+        view.setSelectedLabel();
+        return true;
+    };
+
+    view.setValidationErrorMessage = function(message) {
+    };
+
+    view.getComponentValue = function() {
+        return view.getValue();
+    };
+
+    return view;
 
 }();
