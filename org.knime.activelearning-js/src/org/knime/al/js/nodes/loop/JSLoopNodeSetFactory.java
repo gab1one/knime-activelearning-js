@@ -64,7 +64,7 @@ import org.knime.core.node.config.ConfigRO;
  */
 public class JSLoopNodeSetFactory implements NodeSetFactory {
 
-    private static final String CATEGORY_PREFIX = "/activelearning/loop";
+    private static final String CATEGORY_PREFIX = "/activelearning/loop/end";
     private static final NodeLogger LOGGER = NodeLogger
             .getLogger(JSLoopNodeSetFactory.class);
     private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
