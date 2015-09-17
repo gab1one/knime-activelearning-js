@@ -8,12 +8,15 @@ Bundle-ClassPath: knime_activelearning-js.jar,
 Bundle-Vendor: Chair for Bioinformatics and Information Mining,
  University of Konstanz,
  Germany
-Require-Bundle: org.knime.core;bundle-version="2.12.0",
- org.knime.base;bundle-version="2.12.0",
- org.knime.js.base;bundle-version="2.12.0",
- org.knime.js.core;bundle-version="2.12.0",
- com.fasterxml.jackson.core.jackson-annotations,
+Require-Bundle: org.knime.core;bundle-version="3.0.0",
+ org.knime.base;bundle-version="3.0.0",
+ org.knime.js.base;bundle-version="3.0.0",
+ org.knime.js.core;bundle-version="3.0.0",
+ com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.5.2",
  org.knime.exp.activelearning;bundle-version="0.0.5",
- org.knime.knip.base
+ org.knime.knip.base;bundle-version="1.4.0",
+ org.knime.knip.core;bundle-version="1.4.0",
+ imglib2;bundle-version="2.4.0",
+ scijava-cache;bundle-version="0.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
