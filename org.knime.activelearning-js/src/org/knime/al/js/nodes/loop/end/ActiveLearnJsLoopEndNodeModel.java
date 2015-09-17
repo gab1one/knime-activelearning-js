@@ -55,15 +55,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.knime.al.js.util.server.ActiveLearnFileServer;
+import org.knime.al.js.util.ActiveLearnJSCommon.RepesentationType;
+import org.knime.al.js.util.server.ActiveLearnJSFileServer;
 import org.knime.al.nodes.loop.ActiveLearnLoopEnd;
 import org.knime.al.nodes.loop.ActiveLearnLoopStart;
 import org.knime.al.nodes.loop.ActiveLearnLoopUtils;
 import org.knime.al.util.NodeUtils;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
 import org.knime.core.data.DataValue;
 import org.knime.core.data.RowKey;
+import org.knime.core.data.StringValue;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
@@ -77,6 +80,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.web.ValidationError;
 import org.knime.js.core.node.AbstractWizardNodeModel;
+import org.knime.knip.base.data.img.ImgPlusValue;
 
 /**
  *
@@ -96,7 +100,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
     private final SettingsModelString m_hostAdress = ActiveLearnJsLoopEndSettingsModels
             .createHostAddressModel();
 
-    private ActiveLearnFileServer m_fileServer;
+    private ActiveLearnJSFileServer m_fileServer;
 
     private static final int LEARNING_DATA = 0;
     private static final int PASSTHROUGH_PORT = 1;
@@ -107,7 +111,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
 
     private List<SettingsModel> m_settingsModels;
     private Map<String, DataCell> m_repMap;
-    private final String m_format = "PNG"; // FIXME: get from cell itself
+    private String m_format;
 
     /**
     *
@@ -160,6 +164,9 @@ public class ActiveLearnJsLoopEndNodeModel extends
             m_repColIdx = learningData.getDataTableSpec()
                     .findColumnIndex(m_repColModel.getStringValue());
 
+            m_format = setFormat(learningData.getDataTableSpec()
+                    .getColumnSpec(m_repColIdx).getType());
+
             // updated learning count
             synchronized (getLock()) {
 
@@ -188,7 +195,7 @@ public class ActiveLearnJsLoopEndNodeModel extends
                         viewmap);
                 setViewValue(viewVal);
 
-                m_fileServer = new ActiveLearnFileServer(
+                m_fileServer = new ActiveLearnJSFileServer(
                         m_serverPortModel.getIntValue(), m_repMap,
                         learningData.getSpec().getColumnSpec(m_repColIdx));
             }
@@ -196,6 +203,23 @@ public class ActiveLearnJsLoopEndNodeModel extends
 
         return new BufferedDataTable[] {
                 (BufferedDataTable) inObjects[PASSTHROUGH_PORT] };
+    }
+
+    /**
+     * @param type
+     * @return
+     * @throws InvalidSettingsException
+     */
+    private String setFormat(final DataType type)
+            throws InvalidSettingsException {
+        if (type.isCompatible(ImgPlusValue.class)) {
+            return RepesentationType.PNG.toString();
+        } else if (type.isCompatible(StringValue.class)) {
+            return RepesentationType.TXT.toString();
+        } else {
+            throw new InvalidSettingsException(
+                    "The selected representative collumn is not supported,");
+        }
     }
 
     /**

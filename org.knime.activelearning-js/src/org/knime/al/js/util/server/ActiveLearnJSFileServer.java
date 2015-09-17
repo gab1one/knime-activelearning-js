@@ -57,7 +57,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -65,8 +64,6 @@ import javax.imageio.ImageIO;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.StringValue;
-import org.knime.core.data.def.StringCell;
-import org.knime.core.data.renderer.DataValueRendererFactory;
 import org.knime.core.data.renderer.DataValueRendererFamily;
 import org.knime.core.node.NodeLogger;
 import org.knime.knip.base.data.img.ImgPlusCell;
@@ -78,10 +75,10 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
  *
  * @author gabriel
  */
-public class ActiveLearnFileServer extends NanoHTTPD {
+public class ActiveLearnJSFileServer extends NanoHTTPD {
 
     private final NodeLogger m_logger = NodeLogger
-            .getLogger(ActiveLearnFileServer.class);
+            .getLogger(ActiveLearnJSFileServer.class);
 
     private static final String PNG = "image/png";
 
@@ -97,7 +94,7 @@ public class ActiveLearnFileServer extends NanoHTTPD {
      * @param spec
      *            the spec of the column the cells are from
      */
-    public ActiveLearnFileServer(final int port, final Map<String, DataCell> dataCells,
+    public ActiveLearnJSFileServer(final int port, final Map<String, DataCell> dataCells,
             final DataColumnSpec spec) {
         super(port);
 
@@ -139,7 +136,7 @@ public class ActiveLearnFileServer extends NanoHTTPD {
 
         if (cell instanceof ImgPlusCell) {
             return getImageResponse(cell);
-        } else if (cell instanceof StringCell) {
+        } else if (cell.getType().isCompatible(StringValue.class)) {
             return getStringResponse(cell);
         } else {
             return getInternalErrorResponse(cell.getClass().getCanonicalName()
@@ -173,11 +170,11 @@ public class ActiveLearnFileServer extends NanoHTTPD {
 
     private ByteArrayInputStream createImage(final DataCell cell)
             throws IOException {
-        final Collection<DataValueRendererFactory> renderFactories = cell
-                .getType().getRendererFactories();
-        final DataValueRendererFamily derp = cell.getType().getRenderer(m_spec);
-        final Dimension dim = derp.getPreferredSize();
-        final Component comp = derp.getRendererComponent(cell);
+        // final Collection<DataValueRendererFactory> renderFactories = cell
+        // .getType().getRendererFactories();
+        final DataValueRendererFamily renderFamily = cell.getType().getRenderer(m_spec);
+        final Dimension dim = renderFamily.getPreferredSize();
+        final Component comp = renderFamily.getRendererComponent(cell);
         //
         // final DataValueRenderer renderer = renderFactories.iterator().next()
         // .createRenderer(m_spec); // get the preferred renderer

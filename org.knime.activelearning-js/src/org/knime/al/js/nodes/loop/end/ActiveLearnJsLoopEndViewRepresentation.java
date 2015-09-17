@@ -63,7 +63,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  *
- * @author gabriel
+ * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  *
  *
  */
@@ -131,10 +131,16 @@ public class ActiveLearnJsLoopEndViewRepresentation extends JSONViewContent {
         m_format = settings.getString(FORMAT);
     }
 
+    /**
+     * @return the format string
+     */
     public String getFormat() {
         return m_format;
     }
 
+    /**
+     * @param format the format string
+     */
     public void setFormat(final String format) {
         m_format = format;
     }
