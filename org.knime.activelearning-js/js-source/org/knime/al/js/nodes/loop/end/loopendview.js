@@ -54,15 +54,17 @@ knime_al_loopend = function() {
     view.name = "knime_al_loopend";
 
     view.init = function(representation, value) {
+
         // check if data is avaiable
         if ((!representation.rowIDs) || representation.rowIDs.length < 1) {
             d3.select("body").text("Error: No data available");
             return;
         }
-
+        // the result object
         var _value = value;
 
         // for the multiple rows implementation
+        var _multiRow = representation.rowIDs.length > 1;
         var _curRowIdx = 0;
         var _rows = representation.rowIDs;
 
@@ -97,12 +99,6 @@ knime_al_loopend = function() {
             _label_select.name = "label select";
             _label_select.id = "label_select";
             label_div.appendChild(_label_select);
-            $labelSelect = $("#label_select");
-
-            // Add all previously defined class labels as <option>s
-            for (var j = 0; j < _value.classLabels.length; j++) {
-                this.addLabel(null, _value.classLabels[j]);
-            }
 
             var label_form = document.createElement("form");
             label_form.id = "label_form";
@@ -122,38 +118,47 @@ knime_al_loopend = function() {
             label_form.appendChild(add_btn);
 
             // add forward and backwards buttons
+            if (_multiRow) {
+                var control = document.createElement("div");
+                var fwd_btn = document.createElement("button");
+                fwd_btn.value = "Next Row";
+                fwd_btn.innerHTML = "Next Row";
+                fwd_btn.id = "fwd_btn";
 
-            var control = document.createElement("div");
-            var fwd_btn = document.createElement("button");
-            fwd_btn.value = "Next Row";
-            fwd_btn.innerHTML = "Next Row";
-            fwd_btn.id = "fwd_btn";
+                var back_btn = document.createElement("button");
+                back_btn.value = "Previous Row";
+                back_btn.innerHTML = "Previous Row";
+                back_btn.id = "back_btn";
 
-            var back_btn = document.createElement("button");
-            back_btn.value = "Previous Row";
-            back_btn.innerHTML = "Previous Row";
-            back_btn.id = "back_btn";
-
-            control.appendChild(back_btn);
-            control.appendChild(fwd_btn);
-            body.appendChild(control);
+                control.appendChild(back_btn);
+                control.appendChild(fwd_btn);
+                body.appendChild(control);
+            }
         };
 
         // FUNCTIONS
 
         this.cacheDOM = function() {
             $imgDiv = $("imgDiv");
-            // $labelSelect = $("#label_select");
             $labelForm = $("#label_form");
             $labelInput = $("#label_input");
+            $labelSelect = $("#label_select");
+
+            // Add all previously defined class labels as <option>s
+            for (var j = 0; j < _value.classLabels.length; j++) {
+                this.addLabel(null, _value.classLabels[j]);
+            }
         };
 
         // bind the event listeners
         this.bindListeners = function() {
             // on click funktions
-            fwd_btn.onclick = this.nextRow.bind(this);
-            back_btn.onclick = this.prevRow.bind(this);
             label_form.onsubmit = this.addLabel.bind(this);
+
+            if (_multiRow) {
+                fwd_btn.onclick = this.nextRow.bind(this);
+                back_btn.onclick = this.prevRow.bind(this);
+            }
         };
 
         // getter for the value
@@ -167,17 +172,26 @@ knime_al_loopend = function() {
             _value.rowLabels[_rows[_curRowIdx]] = $labelSelect.val();
         };
 
+        /**
+         * @param checkLabel
+         *            the label to check
+         * @returns true if the given label is known to the model
+         */
+        this.labelExists = function(checkLabel) {
+            return $labelSelect.find("#label-" + checkLabel).length;
+        };
+
         // refreshes the view
         this.refreshView = function() {
             var selected_row = _rows[_curRowIdx];
 
-            // refresh the image
-            $("#internalImg").remove();
-            imgDiv.appendChild(this.createImg(selected_row, _format));
+            // refresh the representation view
+            $("#repElement").remove();
+            imgDiv.appendChild(this.createRepView(selected_row, _format));
 
             // refresh the label
             var currentLabel = _value.rowLabels[selected_row];
-            var exists = $labelSelect.find("#label-" + currentLabel).length;
+            var exists = this.labelExists(currentLabel);
             if (exists) {
                 $labelSelect.val(currentLabel);
             }
@@ -192,7 +206,7 @@ knime_al_loopend = function() {
                 event.preventDefault();
                 _label = $labelInput.val();
                 $labelInput.val(""); // clear input box
-            } else {
+            } else { // called from constructor
                 _label = label;
             }
             if (_label.length === 0) {// don't add empty labels
@@ -200,7 +214,7 @@ knime_al_loopend = function() {
             }
 
             // don't add twice
-            var exists = 0 !== $("#label_select option[value=" + _label + "]").length;
+            var exists = this.labelExists(_label);
             if (!exists) {
                 var label_opt = document.createElement("option");
                 label_opt.value = _label;
@@ -238,20 +252,20 @@ knime_al_loopend = function() {
             this.refreshView();
         };
 
-        // function to create an image div
-        this.createImg = function(rowID, format) {
+        // function to create representation div
+        this.createRepView = function(rowID, format) {
 
             if (format == "PNG") {
                 var img = document.createElement("img");
                 img.setAttribute("src", _host + ":" + _port + "/" + rowID);
-                img.setAttribute("id", "internalImg");
+                img.setAttribute("id", "repElement");
 
                 img.style.maxWidth = 300 + "px";
                 img.style.maxHeight = 400 + "px";
 
                 return img;
             } else {
-                var errorText = "Image format not supported: " + format;
+                var errorText = "Input format not supported: " + format;
                 return document.createTextNode(errorText);
             }
         };
