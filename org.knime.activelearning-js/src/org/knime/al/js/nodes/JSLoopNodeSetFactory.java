@@ -46,13 +46,15 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.al.js.nodes.loop;
+package org.knime.al.js.nodes;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.knime.al.js.nodes.loop.end.ActiveLearnJsLoopEndNodeFactory;
+import org.knime.al.js.nodes.webportal.annotator.ActiveLearnAnnotatorNodeFactory;
+import org.knime.al.js.nodes.webportal.variableloopend.ActiveLearnVariableLoopEndNodeFactory;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
@@ -118,7 +120,12 @@ public class JSLoopNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(
                 ActiveLearnJsLoopEndNodeFactory.class.getCanonicalName(),
                 CATEGORY_PREFIX);
-
+        m_nodeFactories.put(
+                ActiveLearnVariableLoopEndNodeFactory.class.getCanonicalName(),
+                CATEGORY_PREFIX);
+        m_nodeFactories.put(
+                ActiveLearnAnnotatorNodeFactory.class.getCanonicalName(),
+                CATEGORY_PREFIX);
         return m_nodeFactories.keySet();
     }
 }
