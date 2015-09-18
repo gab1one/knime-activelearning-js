@@ -52,6 +52,7 @@ knime_al_loopend = function() {
     view = {};
 
     view.name = "knime_al_loopend";
+    var _value = null;
 
     view.init = function(representation, value) {
 
@@ -61,7 +62,7 @@ knime_al_loopend = function() {
             return;
         }
         // the result object
-        var _value = value;
+        _value = value;
 
         // for the multiple rows implementation
         var _multiRow = representation.rowIDs.length > 1;
@@ -73,13 +74,20 @@ knime_al_loopend = function() {
         var _port = representation.serverPort;
         var _host = representation.hostAddress;
 
+        // if called by the Webportal node
+        var _addContBox = false;
+        if(_value.continueExecution) {
+            _addContBox = true;
+        }
+
         // will be initialized by chachDom function
         var $imgDiv = null;
         var $labelSelect = null;
         var $labelForm = null;
+        var $contBox = null;
 
         // creates the DOM
-        this.createDOM = function() {
+        var createDOM = function() {
             var body = document.getElementsByTagName("body")[0];
 
             // ImgView
@@ -134,41 +142,65 @@ knime_al_loopend = function() {
                 control.appendChild(fwd_btn);
                 body.appendChild(control);
             }
+
+            if(_addContBox){
+                var contBoxDiv = document.createElement("div");
+                contBoxDiv.id = "contBoxDiv";
+
+                var contBox = document.createElement("input");
+                contBox.id = "contBox";
+                contBox.type = "checkbox";
+                contBoxDiv.appendChild(contBox);
+
+                var span = document.createElement("span");
+                span.innerHTML = "Continue Active Learning";
+                contBoxDiv.appendChild(span);
+
+                body.appendChild(contBoxDiv);
+
+            }
         };
 
         // FUNCTIONS
 
-        this.cacheDOM = function() {
+        var cacheDOM = function() {
             $imgDiv = $("imgDiv");
             $labelForm = $("#label_form");
             $labelInput = $("#label_input");
             $labelSelect = $("#label_select");
 
+            if(_addContBox){
+                $contBox = $("#contBox");
+            }
+
             // Add all previously defined class labels as <option>s
             for (var j = 0; j < _value.classLabels.length; j++) {
-                this.addLabel(null, _value.classLabels[j]);
+                addLabel(null, _value.classLabels[j]);
             }
         };
 
         // bind the event listeners
-        this.bindListeners = function() {
+        var bindListeners = function() {
             // on click funktions
-            label_form.onsubmit = this.addLabel.bind(this);
+            label_form.onsubmit = addLabel.bind(this);
 
             if (_multiRow) {
-                fwd_btn.onclick = this.nextRow.bind(this);
-                back_btn.onclick = this.prevRow.bind(this);
+                fwd_btn.onclick = view.nextRow.bind(this);
+                back_btn.onclick = view.prevRow.bind(this);
             }
+
         };
 
         // getter for the value
-        this.getValue = function() {
+        var getValue = function() {
+            // ensure the last label is set.
+            setSelectedLabel();
             return _value;
         };
 
         // sets the label of the current row to the currently selected value in
         // the label select
-        this.setSelectedLabel = function() {
+        var setSelectedLabel = function() {
             _value.rowLabels[_rows[_curRowIdx]] = $labelSelect.val();
         };
 
@@ -177,28 +209,28 @@ knime_al_loopend = function() {
          *            the label to check
          * @returns true if the given label is known to the model
          */
-        this.labelExists = function(checkLabel) {
+        var labelExists = function(checkLabel) {
             return $labelSelect.find("#label-" + checkLabel).length;
         };
 
         // refreshes the view
-        this.refreshView = function() {
+        var refreshView = function() {
             var selected_row = _rows[_curRowIdx];
 
             // refresh the representation view
             $("#repElement").remove();
-            imgDiv.appendChild(this.createRepView(selected_row, _format));
+            imgDiv.appendChild(createRepView(selected_row, _format));
 
             // refresh the label
             var currentLabel = _value.rowLabels[selected_row];
-            var exists = this.labelExists(currentLabel);
+            var exists = labelExists(currentLabel);
             if (exists) {
                 $labelSelect.val(currentLabel);
             }
         };
 
         // add a new label and select it
-        this.addLabel = function(event, label) {
+        var addLabel = function(event, label) {
             var _label = null;
 
             // called from the label onSubmit.
@@ -214,7 +246,7 @@ knime_al_loopend = function() {
             }
 
             // don't add twice
-            var exists = this.labelExists(_label);
+            var exists = labelExists(_label);
             if (!exists) {
                 var label_opt = document.createElement("option");
                 label_opt.value = _label;
@@ -227,8 +259,8 @@ knime_al_loopend = function() {
         };
 
         // function to show the previous row
-        this.prevRow = function() {
-            this.setSelectedLabel();
+        view.prevRow = function() {
+            setSelectedLabel();
 
             // wrap around
             if (_curRowIdx === 0) {
@@ -236,12 +268,12 @@ knime_al_loopend = function() {
             } else {
                 _curRowIdx = _curRowIdx - 1;
             }
-            this.refreshView();
+            refreshView();
         };
 
         // function to show the next row
-        this.nextRow = function() {
-            this.setSelectedLabel();
+        view.nextRow = function() {
+            setSelectedLabel();
 
             // wrap around
             if (_curRowIdx === _rows.length - 1) {
@@ -249,11 +281,11 @@ knime_al_loopend = function() {
             } else {
                 _curRowIdx = _curRowIdx + 1;
             }
-            this.refreshView();
+            refreshView();
         };
 
         // function to create representation div
-        this.createRepView = function(rowID, format) {
+        var createRepView = function(rowID, format) {
 
             if (format == "PNG") {
                 var img = document.createElement("img");
@@ -264,24 +296,24 @@ knime_al_loopend = function() {
                 img.style.maxHeight = 400 + "px";
 
                 return img;
+            } else if (format == "TXT") {
+                var textField = "TEST !";
+                return document.createTextNode(Element);
             } else {
                 var errorText = "Input format not supported: " + format;
                 return document.createTextNode(errorText);
             }
         };
 
-        this.createDOM();
-        this.cacheDOM();
-        this.bindListeners();
-        this.refreshView();
+        createDOM();
+        cacheDOM();
+        bindListeners();
+        refreshView();
 
         resizeParent();
     };
 
     view.validate = function() {
-
-        // ensure the last label is set.
-        view.setSelectedLabel();
         return true;
     };
 
@@ -289,7 +321,7 @@ knime_al_loopend = function() {
     };
 
     view.getComponentValue = function() {
-        return view.getValue();
+        return _value;
     };
 
     return view;

@@ -17,6 +17,7 @@ Require-Bundle: org.knime.core;bundle-version="3.0.0",
  org.knime.knip.base;bundle-version="1.4.0",
  org.knime.knip.core;bundle-version="1.4.0",
  imglib2;bundle-version="2.4.0",
- scijava-cache;bundle-version="0.1.0"
+ scijava-cache;bundle-version="0.1.0",
+ org.knime.core.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

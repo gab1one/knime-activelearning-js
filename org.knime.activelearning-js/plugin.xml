@@ -4,9 +4,18 @@
 	<extension 
 			point="org.knime.workbench.repository.nodesets">
 		<nodeset 
-				factory-class="org.knime.al.js.nodes.loop.JSLoopNodeSetFactory" 
+				factory-class="org.knime.al.js.nodes.JSLoopNodeSetFactory" 
 				id="org.knime.al.js.nodes.loop.JSLoopNodeSetFactory">
 		</nodeset>
+	</extension>
+	<extension
+	      point="org.knime.workbench.repository.categories">
+	      <category
+             level-id="webportal"
+             locked="false"
+             name="Web Portal Nodes"
+             path="/activelearning/loop">
+	      </category>
 	</extension>
 	<extension 
 			point="org.knime.js.core.javascriptComponents">

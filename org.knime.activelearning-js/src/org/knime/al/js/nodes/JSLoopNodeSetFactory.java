@@ -66,7 +66,8 @@ import org.knime.core.node.config.ConfigRO;
  */
 public class JSLoopNodeSetFactory implements NodeSetFactory {
 
-    private static final String CATEGORY_PREFIX = "/activelearning/loop/end";
+    private static final String LOOPEND_CATEGORY_PREFIX = "/activelearning/loop/end";
+    private static final String WEBPORTAL_CATEGORY_PREFIX = "/activelearning/loop/webportal";
     private static final NodeLogger LOGGER = NodeLogger
             .getLogger(JSLoopNodeSetFactory.class);
     private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
@@ -119,13 +120,13 @@ public class JSLoopNodeSetFactory implements NodeSetFactory {
 
         m_nodeFactories.put(
                 ActiveLearnJsLoopEndNodeFactory.class.getCanonicalName(),
-                CATEGORY_PREFIX);
+                LOOPEND_CATEGORY_PREFIX);
         m_nodeFactories.put(
                 ActiveLearnVariableLoopEndNodeFactory.class.getCanonicalName(),
-                CATEGORY_PREFIX);
+                WEBPORTAL_CATEGORY_PREFIX);
         m_nodeFactories.put(
                 ActiveLearnAnnotatorNodeFactory.class.getCanonicalName(),
-                CATEGORY_PREFIX);
+                WEBPORTAL_CATEGORY_PREFIX);
         return m_nodeFactories.keySet();
     }
 }

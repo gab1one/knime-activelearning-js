@@ -83,6 +83,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.web.ValidationError;
+import org.knime.core.node.workflow.FlowVariable;
 import org.knime.js.core.node.AbstractWizardNodeModel;
 import org.knime.knip.base.data.img.ImgPlusValue;
 
@@ -149,8 +150,15 @@ public class ActiveLearnAnnotatorNodeModel extends
     protected PortObject[] performExecute(final PortObject[] inObjects,
             final ExecutionContext exec) throws Exception {
 
-        final int currentIteration = getAvailableFlowVariables()
-                .get(ActiveLearnLoopUtils.AL_STEP).getIntValue();
+        final FlowVariable alStepVar = getAvailableFlowVariables()
+                .get(ActiveLearnLoopUtils.AL_STEP);
+        if (alStepVar == null) {
+            throw new InvalidSettingsException(
+                    "The Active Learn iteration flowvariable: '"
+                            + ActiveLearnLoopUtils.AL_STEP
+                            + "' is not avaiable!");
+        }
+        final int currentIteration = alStepVar.getIntValue();
 
         final DataTableSpec[] outSpec = configure(new DataTableSpec[] {
                 (DataTableSpec) inObjects[LEARNING_DATA].getSpec() });
@@ -174,6 +182,7 @@ public class ActiveLearnAnnotatorNodeModel extends
                         });
             }
         } else {
+            pushFlowVariableInt(ALControlVar, 1);
             // normal execution
             m_previousIteration = currentIteration;
 
@@ -208,7 +217,7 @@ public class ActiveLearnAnnotatorNodeModel extends
                 setViewRepresentation(rep);
 
                 final ActiveLearnAnnotatorViewValue viewVal = new ActiveLearnAnnotatorViewValue(
-                        Collections.EMPTY_SET, viewmap, true);
+                        Collections.emptySet(), viewmap, true);
                 setViewValue(viewVal);
 
                 m_fileServer = new ActiveLearnJSFileServer(
