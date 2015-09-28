@@ -63,6 +63,7 @@ import javax.imageio.ImageIO;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.MissingCell;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.renderer.DataValueRendererFamily;
 import org.knime.core.node.NodeLogger;
@@ -133,11 +134,13 @@ public class ActiveLearnJSFileServer extends NanoHTTPD {
         }
 
         final DataCell cell = m_cells.get(rowID);
-
+        if( cell instanceof MissingCell){
+            return getInternalErrorResponse("Missing Value encountered!");
+        }
         if (cell instanceof ImgPlusCell) {
             return getImageResponse(cell);
         } else if (cell.getType().isCompatible(StringValue.class)) {
-            return getStringResponse(cell);
+            return getStringResponse(cell, session.getParms().get("callback"));
         } else {
             return getInternalErrorResponse(cell.getClass().getCanonicalName()
                     + " is not a supported data type!");
@@ -147,11 +150,22 @@ public class ActiveLearnJSFileServer extends NanoHTTPD {
 
     /**
      * @param cell
+     * @param funcName
      * @return
      */
-    private Response getStringResponse(final DataCell cell) {
+    private Response getStringResponse(final DataCell cell, final String funcName) {
         final String val = ((StringValue) cell).getStringValue();
-        return newFixedLengthResponse(Status.OK, NanoHTTPD.MIME_PLAINTEXT, val);
+        final String response = funcName + ""+ getJson(val) + ");";
+
+        return newFixedLengthResponse(Status.OK, "application/javascript", response);
+    }
+
+    /**
+     * @param val
+     * @return
+     */
+    private String getJson(final String val) {
+        return "{ \n \"repval\" : \"" + val + "\" \n}" ;
     }
 
     /**
